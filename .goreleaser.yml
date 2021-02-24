@@ -48,15 +48,3 @@ release:
   draft: false
   prerelease: false
   name_template: "{{.Tag}}"
-
-brews:
-  - name: captain-hook
-    tap:
-      owner: garethjevans
-      name: homebrew-tap
-      token: "{{ .Env.GITHUB_TOKEN }}"
-    commit_author:
-      name: garethjevans
-      email: gareth@bryncynfelin.co.uk
-    folder: Formula
-    description: "Utility to update jenkins plugin.txt"
