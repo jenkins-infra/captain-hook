@@ -27,7 +27,6 @@ var (
 
 // Options struct containing all options.
 type Options struct {
-	Port             string
 	Path             string
 	Version          string
 	ForwardURL       string
@@ -40,7 +39,6 @@ func NewHook() (*Options, error) {
 	logrus.Infof("creating new webhook listener")
 	return &Options{
 		Path:             os.Getenv("HOOK_PATH"),
-		Port:             os.Getenv("HOOK_PORT"),
 		ForwardURL:       os.Getenv("FORWARD_URL"),
 		Version:          version.Version,
 		maxRetryDuration: &defaultMaxRetryDuration,

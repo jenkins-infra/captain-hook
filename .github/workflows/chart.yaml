@@ -32,8 +32,8 @@ jobs:
             echo "::set-output name=changed::true"
           fi
 
-      - name: Run chart-testing (lint)
-        run: ct lint --config ct.yaml
+          #      - name: Run chart-testing (lint)
+          #        run: ct lint --config ct.yaml
 
       - name: Create kind cluster
         uses: helm/kind-action@v1.0.0
