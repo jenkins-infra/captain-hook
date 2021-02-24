@@ -1,0 +1,7 @@
+---
+apiVersion: v2
+name: captain-hook
+description: A Helm chart for https://github.com/garethjevans/captain-hook
+type: application
+version: 0.1.0
+appVersion: "0.0.4"
