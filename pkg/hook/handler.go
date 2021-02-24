@@ -112,10 +112,7 @@ func (o *Options) handleWebHookRequests(w http.ResponseWriter, r *http.Request) 
 	logrus.Debugf("got hook body %s", string(bodyBytes))
 	logrus.Debugf("got headers %s", r.Header)
 
-	githubDeliveryEvent := r.Header.Get("X-GitHub-Delivery")
-	githubEventType := r.Header.Get("X-GitHub-Event")
-
-	err = o.onGeneralHook(githubEventType, githubDeliveryEvent, bodyBytes)
+	err = o.onGeneralHook(bodyBytes, r.Header)
 	if err != nil {
 		logrus.Errorf("failed to process webhook: %s", err)
 		responseHTTPError(w, http.StatusInternalServerError, "500 Internal Server Error: %s", err.Error())
@@ -124,19 +121,20 @@ func (o *Options) handleWebHookRequests(w http.ResponseWriter, r *http.Request) 
 	writeResult(w, "OK")
 }
 
-func (o *Options) onGeneralHook(githubEventType string, githubDeliveryEvent string, bodyBytes []byte) error {
+func (o *Options) onGeneralHook(bodyBytes []byte, headers http.Header) error {
 	// Set a default max retry duration of 30 seconds if it's not set.
 	if o.maxRetryDuration == nil {
 		o.maxRetryDuration = &defaultMaxRetryDuration
 	}
 
-	logrus.Debugf("onGeneralHook - %s", githubEventType)
+	githubDeliveryEvent := headers.Get("X-Github-Delivery")
+	logrus.Debugf("onGeneralHook - %s", githubDeliveryEvent)
 	//decodedHmac, err := base64.StdEncoding.DecodeString(ws.HMAC)
 	//if err != nil {
 	//	log.WithError(err).Errorf("unable to decode hmac")
 	//}
 
-	err := o.retryWebhookDelivery(o.ForwardURL, githubEventType, githubDeliveryEvent, bodyBytes)
+	err := o.retryWebhookDelivery(o.ForwardURL, bodyBytes, headers)
 	if err != nil {
 		logrus.Errorf("failed to deliver webhook after %s, %s", o.maxRetryDuration, err)
 		return err
@@ -147,7 +145,7 @@ func (o *Options) onGeneralHook(githubEventType string, githubDeliveryEvent stri
 	return nil
 }
 
-func (o *Options) retryWebhookDelivery(forwardURL string, githubEventType string, githubDeliveryEvent string, bodyBytes []byte) error {
+func (o *Options) retryWebhookDelivery(forwardURL string, bodyBytes []byte, header http.Header) error {
 	f := func() error {
 		logrus.Debugf("relaying %s", string(bodyBytes))
 		//g := hmac.NewGenerator("sha256", decodedHmac)
@@ -176,8 +174,9 @@ func (o *Options) retryWebhookDelivery(forwardURL string, githubEventType string
 		if err != nil {
 			return err
 		}
-		req.Header.Add("X-GitHub-Event", githubEventType)
-		req.Header.Add("X-GitHub-Delivery", githubDeliveryEvent)
+		req.Header = header
+
+		// does this need to be resigned?
 		//req.Header.Add("X-Hub-Signature", signature)
 
 		resp, err := httpClient.Do(req)
