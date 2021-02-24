@@ -46,9 +46,12 @@ func NewHook() (*Options, error) {
 }
 
 func (o *Options) Handle(mux *mux.Router) {
+	logrus.Infof("Handling health on %s", HealthPath)
 	mux.Handle(HealthPath, http.HandlerFunc(o.health))
 
 	mux.Handle("/", http.HandlerFunc(o.defaultHandler))
+
+	logrus.Infof("Handling hook on %s", o.Path)
 	mux.Handle(o.Path, http.HandlerFunc(o.handleWebHookRequests))
 }
 
@@ -84,9 +87,10 @@ func (o *Options) getIndex(w io.Writer) {
 }
 
 func (o *Options) handleWebHookRequests(w http.ResponseWriter, r *http.Request) {
+	logrus.Infof("got incomming request")
 	if r.Method != http.MethodPost {
 		// liveness probe etc
-		logrus.Debug("invalid http method so returning index")
+		logrus.Info("invalid http method so returning index")
 		o.getIndex(w)
 		return
 	}
@@ -105,7 +109,8 @@ func (o *Options) handleWebHookRequests(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	logrus.Debugf("got hook %s", string(bodyBytes))
+	logrus.Debugf("got hook body %s", string(bodyBytes))
+	logrus.Debugf("got headers %s", r.Header)
 
 	githubDeliveryEvent := r.Header.Get("X-GitHub-Delivery")
 	githubEventType := r.Header.Get("X-GitHub-Event")
@@ -176,10 +181,11 @@ func (o *Options) retryWebhookDelivery(forwardURL string, githubEventType string
 		//req.Header.Add("X-Hub-Signature", signature)
 
 		resp, err := httpClient.Do(req)
-		logrus.Infof("got resp code %d from url '%s'", resp.StatusCode, forwardURL)
 		if err != nil {
 			return err
 		}
+
+		logrus.Infof("got resp code %d from url '%s'", resp.StatusCode, forwardURL)
 
 		// If we got a 500, check if it's got the "repository not configured" string in the body. If so, we retry.
 		if resp.StatusCode == 500 {
