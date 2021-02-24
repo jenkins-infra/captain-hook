@@ -2,6 +2,7 @@ package hook
 
 import (
 	"bytes"
+	"crypto/tls"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -30,6 +31,7 @@ type Options struct {
 	Path             string
 	Version          string
 	ForwardURL       string
+	InsecureRelay    bool
 	client           *http.Client
 	maxRetryDuration *time.Duration
 }
@@ -40,6 +42,7 @@ func NewHook() (*Options, error) {
 	return &Options{
 		Path:             os.Getenv("HOOK_PATH"),
 		ForwardURL:       os.Getenv("FORWARD_URL"),
+		InsecureRelay:    os.Getenv("INSECURE_RELAY") == "true",
 		Version:          version.Version,
 		maxRetryDuration: &defaultMaxRetryDuration,
 	}, nil
@@ -156,18 +159,18 @@ func (o *Options) retryWebhookDelivery(forwardURL string, bodyBytes []byte, head
 		if o.client != nil {
 			httpClient = o.client
 		} else {
-			//if useInsecureRelay {
-			//	// #nosec G402
-			//	tr := &http.Transport{
-			//		TLSClientConfig: &tls.Config{
-			//			InsecureSkipVerify: true,
-			//		},
-			//	}
+			if o.InsecureRelay {
+				// #nosec G402
+				tr := &http.Transport{
+					TLSClientConfig: &tls.Config{
+						InsecureSkipVerify: true,
+					},
+				}
 
-			//	httpClient = &http.Client{Transport: tr}
-			//} else {
-			httpClient = &http.Client{}
-			//}
+				httpClient = &http.Client{Transport: tr}
+			} else {
+				httpClient = &http.Client{}
+			}
 		}
 
 		req, err := http.NewRequest("POST", forwardURL, bytes.NewReader(bodyBytes))
