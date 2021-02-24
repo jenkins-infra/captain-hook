@@ -9,4 +9,4 @@ COPY dist/captain-hook-${TARGETOS}_${TARGETOS}_${TARGETARCH}/captain-hook /usr/b
 
 ENTRYPOINT [ "/usr/bin/captain-hook" ]
 
-CMD [" listen "]
+CMD [ "listen" ]
