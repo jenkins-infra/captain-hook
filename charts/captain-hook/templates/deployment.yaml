@@ -53,8 +53,7 @@ spec:
             - name: FORWARD_URL
               value: {{ .Values.forwardURL }}
             - name: INSECURE_RELAY
-              value: {{ .Values.insecureRelay }}
-            {{- toYaml .Values.env | nindent 12 }}
+              value: {{ .Values.insecureRelay | quote }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
