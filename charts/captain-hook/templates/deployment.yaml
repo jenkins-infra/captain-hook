@@ -52,6 +52,8 @@ spec:
               value: {{ .Values.hookPath }}
             - name: FORWARD_URL
               value: {{ .Values.forwardURL }}
+            - name: INSECURE_RELAY
+              value: {{ .Values.insecureRelay }}
             {{- toYaml .Values.env | nindent 12 }}
       {{- with .Values.nodeSelector }}
       nodeSelector:

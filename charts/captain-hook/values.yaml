@@ -9,14 +9,10 @@ image:
   # Overrides the image tag whose default is the chart appVersion.
   tag: ""
 
+# Service Configuration
 hookPath: /hook
 forwardURL: http://jenkins:8080/github-webhook/
-
-env:
-  - name: HOOK_PATH
-    value: /hook
-  - name: FORWARD_URL
-    value:
+insecureRelay: false
 
 imagePullSecrets: []
 nameOverride: ""
