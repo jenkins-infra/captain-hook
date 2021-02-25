@@ -10,9 +10,9 @@ image:
   tag: ""
 
 # Service Configuration
-hookPath: /hook
-forwardURL: http://jenkins:8080/github-webhook/
-insecureRelay: false
+hookPath: "/hook"
+forwardURL: "http://jenkins:8080/github-webhook/"
+insecureRelay: "false"
 
 imagePullSecrets: []
 nameOverride: ""
