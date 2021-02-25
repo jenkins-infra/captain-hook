@@ -1,0 +1,106 @@
+project_name: captain-hook
+env:
+- GO111MODULE=on
+- CGO_ENABLED=0
+release:
+  github:
+    owner: garethjevans
+    name: captain-hook
+  prerelease: "false"
+  name_template: '{{.Tag}}'
+milestones:
+- repo:
+    owner: garethjevans
+    name: captain-hook
+  name_template: '{{ .Tag }}'
+scoop:
+  name: captain-hook
+  commit_author:
+    name: goreleaserbot
+    email: goreleaser@carlosbecker.com
+  commit_msg_template: Scoop update for {{ .ProjectName }} version {{ .Tag }}
+builds:
+- id: captain-hook-linux
+  goos:
+  - linux
+  goarch:
+  - amd64
+  - arm64
+  - s390x
+  - ppc64le
+  goarm:
+  - "6"
+  targets:
+  - linux_amd64
+  - linux_arm64
+  - linux_s390x
+  - linux_ppc64le
+  dir: .
+  main: ./cmd/captain-hook/captain-hook.go
+  ldflags:
+  - -X github.com/garethjevans/captain-hook/pkg/version.Version={{.Version}} -X github.com/garethjevans/captain-hook/pkg/version.Revision={{.ShortCommit}}
+    -X github.com/garethjevans/captain-hook/pkg/version.BuildDate={{.CommitDate}}
+    -X github.com/garethjevans/captain-hook/pkg/version.BuiltBy=goreleaser
+  binary: captain-hook
+  lang: go
+  gobinary: go
+- id: captain-hook-darwin
+  goos:
+  - darwin
+  goarch:
+  - amd64
+  - arm64
+  goarm:
+  - "6"
+  targets:
+  - darwin_amd64
+  - darwin_arm64
+  dir: .
+  main: ./cmd/captain-hook/captain-hook.go
+  ldflags:
+  - -X github.com/garethjevans/captain-hook/pkg/version.Version={{.Version}} -X github.com/garethjevans/captain-hook/pkg/version.Revision={{.ShortCommit}}
+    -X github.com/garethjevans/captain-hook/pkg/version.BuildDate={{.CommitDate}}
+    -X github.com/garethjevans/captain-hook/pkg/version.BuiltBy=goreleaser
+  binary: captain-hook
+  lang: go
+  gobinary: go
+archives:
+- id: default
+  builds:
+  - captain-hook-linux
+  - captain-hook-darwin
+  name_template: '{{ .ProjectName }}-{{ .Os }}-{{ .Arch }}'
+  format: tar.gz
+  format_overrides:
+  - goos: windows
+    format: zip
+  files:
+  - licence*
+  - LICENCE*
+  - license*
+  - LICENSE*
+  - readme*
+  - README*
+  - changelog*
+  - CHANGELOG*
+  allow_different_binary_count: false
+snapshot:
+  name_template: '{{ .Tag }}-SNAPSHOT-{{ .ShortCommit }}'
+checksum:
+  name_template: '{{ .ProjectName }}-checksums.txt'
+  algorithm: sha256
+dist: dist
+env_files:
+  github_token: ~/.config/goreleaser/github_token
+  gitlab_token: ~/.config/goreleaser/gitlab_token
+  gitea_token: ~/.config/goreleaser/gitea_token
+before:
+  hooks:
+  - go mod download
+source:
+  name_template: '{{ .ProjectName }}-{{ .Version }}'
+  format: tar.gz
+github_urls:
+  download: https://github.com
+gitlab_urls:
+  download: https://gitlab.com

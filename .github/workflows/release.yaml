@@ -26,7 +26,7 @@ jobs:
         run: |
           DOCKER_IMAGE=garethjevans/captain-hook
           VERSION=latest
-          GORELEASER_ARGS="build"
+          GORELEASER_ARGS="build --rm-dist --snapshot"
           RELEASE_CHART=false
 
           if [[ $GITHUB_REF == refs/tags/* ]]; then
@@ -35,10 +35,8 @@ jobs:
             RELEASE_CHART=true
           elif [[ $GITHUB_REF == refs/heads/* ]]; then
             VERSION=$(echo ${GITHUB_REF#refs/heads/} | sed -r 's#/+#-#g')
-            GORELEASER_ARGS="build"
           elif [[ $GITHUB_REF == refs/pull/* ]]; then
             VERSION=pr-${{ github.event.number }}
-            GORELEASER_ARGS="build"
           fi
 
           TAGS="${DOCKER_IMAGE}:${VERSION}"
