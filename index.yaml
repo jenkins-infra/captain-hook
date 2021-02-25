@@ -2,6 +2,21 @@ apiVersion: v1
 entries:
   captain-hook:
   - apiVersion: v2
+    appVersion: 0.0.11
+    created: "2021-02-25T22:42:57.663497701Z"
+    description: A Helm chart for github.com/garethjevans/captain-hook
+    digest: 996b195b5054063b40e31578f83c665cb56eed75d6bac2c9d8f95ac9def09a03
+    home: https://github.com/garethjevans/captain-hook
+    icon: https://wiki.jenkins-ci.org/download/attachments/2916393/logo.png
+    maintainers:
+    - email: gareth@bryncynfelin.co.uk
+      name: garethjevans
+    name: captain-hook
+    type: application
+    urls:
+    - https://github.com/garethjevans/captain-hook/releases/download/captain-hook-0.0.11/captain-hook-0.0.11.tgz
+    version: 0.0.11
+  - apiVersion: v2
     appVersion: 0.0.10
     created: "2021-02-24T21:15:32.877592412Z"
     description: A Helm chart for github.com/garethjevans/captain-hook
@@ -61,4 +76,4 @@ entries:
     urls:
     - https://github.com/garethjevans/captain-hook/releases/download/captain-hook-0.0.7/captain-hook-0.0.7.tgz
     version: 0.0.7
-generated: "2021-02-24T21:15:32.877619512Z"
+generated: "2021-02-25T22:42:57.663515001Z"
