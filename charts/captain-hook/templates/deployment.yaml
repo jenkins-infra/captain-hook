@@ -48,7 +48,12 @@ spec:
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           env:
-            {{- toYaml .Values.env | nindent 12 }}
+            - name: HOOK_PATH
+              value: {{ .Values.hookPath }}
+            - name: FORWARD_URL
+              value: {{ .Values.forwardURL }}
+            - name: INSECURE_RELAY
+              value: {{ .Values.insecureRelay | quote }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
