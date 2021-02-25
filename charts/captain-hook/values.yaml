@@ -9,11 +9,14 @@ image:
   # Overrides the image tag whose default is the chart appVersion.
   tag: ""
 
+hookPath: /hook
+forwardURL: http://jenkins:8080/github-webhook/
+
 env:
   - name: HOOK_PATH
     value: /hook
   - name: FORWARD_URL
-    value: http://jenkins:8080/github-webhook/
+    value:
 
 imagePullSecrets: []
 nameOverride: ""
@@ -51,8 +54,14 @@ ingress:
     # kubernetes.io/ingress.class: nginx
     # kubernetes.io/tls-acme: "true"
   hosts:
-    - host: chart-example.local
-      paths: []
+    - paths:
+        - backend:
+            service:
+              name: captain-hook
+              port:
+                number: 8080
+          pathType: ImplementationSpecific
+
   tls: []
   #  - secretName: chart-example-tls
   #    hosts:
