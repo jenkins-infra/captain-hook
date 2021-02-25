@@ -86,31 +86,31 @@ jobs:
             org.opencontainers.image.revision=${{ github.sha }}
 
       - name: Configure Git
-        if: ${{ steps.prep.outputs.release_chart }}
+        if: ${{ steps.prep.outputs.release_chart == 'true' }}
         run: |
           git config user.name "$GITHUB_ACTOR"
           git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
 
       - name: Update appVersion in Chart.yaml
         uses: mikefarah/yq@v4.6.0
-        if: ${{ steps.prep.outputs.release_chart }}
+        if: ${{ steps.prep.outputs.release_chart == 'true' }}
         with:
           cmd: yq eval '.appVersion = "${{ steps.prep.outputs.version }}"' -i charts/captain-hook/Chart.yaml
 
       - name: Update version in Chart.yaml
         uses: mikefarah/yq@v4.6.0
-        if: ${{ steps.prep.outputs.release_chart }}
+        if: ${{ steps.prep.outputs.release_chart == 'true' }}
         with:
           cmd: yq eval '.version = "${{ steps.prep.outputs.version }}"' -i charts/captain-hook/Chart.yaml
 
       - name: Install Helm
         uses: azure/setup-helm@v1
-        if: ${{ steps.prep.outputs.release_chart }}
+        if: ${{ steps.prep.outputs.release_chart == 'true' }}
         with:
           version: v3.5.2
 
       - name: Run chart-releaser
         uses: helm/chart-releaser-action@v1.2.0
-        if: ${{ steps.prep.outputs.release_chart }}
+        if: ${{ steps.prep.outputs.release_chart == 'true' }}
         env:
           CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
