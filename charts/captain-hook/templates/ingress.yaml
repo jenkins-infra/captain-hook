@@ -1,9 +1,10 @@
 {{- if .Values.ingress.enabled -}}
 {{- $fullName := include "captain-hook.fullname" . -}}
 {{- $svcPort := .Values.service.port -}}
-{{- if semverCompare ">=1.19-0" .Capabilities.KubeVersion.GitVersion -}}
+{{- $kubeTargetVersion := default .Capabilities.KubeVersion.GitVersion .Values.kubeTargetVersionOverride }}
+{{- if semverCompare ">=1.19-0" $kubeTargetVersion -}}
 apiVersion: networking.k8s.io/v1
-{{- else if semverCompare ">=1.14-0" .Capabilities.KubeVersion.GitVersion -}}
+{{- else if semverCompare ">=1.14-0" $kubeTargetVersion -}}
 apiVersion: networking.k8s.io/v1beta1
 {{- else -}}
 apiVersion: extensions/v1beta1
@@ -36,12 +37,12 @@ spec:
           {{- range .paths }}
           - path: {{ .path }}
             backend:
-              {{- if semverCompare ">=1.19-0" .Capabilities.KubeVersion.GitVersion -}}
+              {{- if semverCompare ">=1.19-0" $kubeTargetVersion }}
               service:
                 name: {{ $fullName }}
                 port:
                   number: {{ $svcPort }}
-              {{- else -}}
+              {{- else }}
               serviceName: {{ $fullName }}
               servicePort: {{ $svcPort }}
               {{- end }}
