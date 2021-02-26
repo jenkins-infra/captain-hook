@@ -11,5 +11,5 @@ spec:
     - name: curl
       image: curlimages/curl
       command: ['curl']
-      args: ['-X','POST','--data','test-message','http://{{ include "captain-hook.fullname" . }}:{{ .Values.service.port }}']
+      args: ['-X','POST','--data','test-message','http://{{ include "captain-hook.fullname" . }}:{{ .Values.service.port }}{{ .Values.hookPath }}']
   restartPolicy: Never
