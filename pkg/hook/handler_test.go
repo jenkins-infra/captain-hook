@@ -8,6 +8,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/garethjevans/captain-hook/pkg/store"
+
 	"github.com/sirupsen/logrus"
 
 	"github.com/stretchr/testify/assert"
@@ -33,7 +35,6 @@ func TestWebhooks(t *testing.T) {
 			handlerFunc: func(rw http.ResponseWriter, req *http.Request) {
 				// Test request parameters
 				assert.Equal(t, req.URL.String(), "/")
-				//assert.Equal(t, req.Header.Get("X-Hub-Signature"), "sha256=99a6c7b0894b25577f26d06d94c320bc5e234ae72e414b038436877ccef02652")
 
 				// Send response to be tested
 				t.Logf("sending 'OK'")
@@ -50,7 +51,6 @@ func TestWebhooks(t *testing.T) {
 			handlerFunc: func(rw http.ResponseWriter, req *http.Request) {
 				// Test request parameters
 				assert.Equal(t, req.URL.String(), "/")
-				//assert.Equal(t, req.Header.Get("X-Hub-Signature"), "sha256=99a6c7b0894b25577f26d06d94c320bc5e234ae72e414b038436877ccef02652")
 
 				// Send response to be tested
 				rw.WriteHeader(500)
@@ -71,11 +71,11 @@ func TestWebhooks(t *testing.T) {
 			r, _ := http.NewRequest("POST", "/", buf)
 			r.Header.Set("X-GitHub-Event", test.event)
 			r.Header.Set("X-GitHub-Delivery", "f2467dea-70d6-11e8-8955-3c83993e0aef")
-			r.Header.Set("X-Hub-Signature", "sha1=e9c4409d39729236fda483f22e7fb7513e5cd273")
 
 			retryDuration := 5 * time.Second
 			handler := Options{
 				maxRetryDuration: &retryDuration,
+				store:            store.NewLoggingStore(),
 			}
 
 			attempts := 0

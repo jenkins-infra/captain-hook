@@ -11,6 +11,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/garethjevans/captain-hook/pkg/store"
+
 	"github.com/cenkalti/backoff"
 	"github.com/garethjevans/captain-hook/pkg/version"
 	"github.com/gorilla/mux"
@@ -34,6 +36,7 @@ type Options struct {
 	InsecureRelay    bool
 	client           *http.Client
 	maxRetryDuration *time.Duration
+	store            store.Store
 }
 
 // NewHook create a new hook handler.
@@ -45,6 +48,7 @@ func NewHook() (*Options, error) {
 		InsecureRelay:    os.Getenv("INSECURE_RELAY") == "true",
 		Version:          version.Version,
 		maxRetryDuration: &defaultMaxRetryDuration,
+		store:            store.NewKubernetesStore(),
 	}, nil
 }
 
@@ -137,7 +141,14 @@ func (o *Options) onGeneralHook(bodyBytes []byte, headers http.Header) error {
 	//	log.WithError(err).Errorf("unable to decode hmac")
 	//}
 
-	err := o.retryWebhookDelivery(o.ForwardURL, bodyBytes, headers)
+	// store in db
+	err := o.store.StoreHook(o.ForwardURL, string(bodyBytes), headers)
+	if err != nil {
+		logrus.Errorf("failed to store webhook: %s", err)
+		return err
+	}
+
+	err = o.retryWebhookDelivery(o.ForwardURL, bodyBytes, headers)
 	if err != nil {
 		logrus.Errorf("failed to deliver webhook after %s, %s", o.maxRetryDuration, err)
 		return err
