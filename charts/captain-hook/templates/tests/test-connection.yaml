@@ -9,7 +9,8 @@ metadata:
 spec:
   containers:
     - name: curl
-      image: curlimages/curl
+      image: curlimages/curl:7.75.0
       command: ['curl']
-      args: ['--fail-with-body','-X','POST','--data','test-message','http://{{ include "captain-hook.fullname" . }}:{{ .Values.service.port }}{{ .Values.hookPath }}']
+      # this should be --fail-with-body when 7.76.0 is available
+      args: ['--fail','-X','POST','--data','test-message','http://{{ include "captain-hook.fullname" . }}:{{ .Values.service.port }}{{ .Values.hookPath }}']
   restartPolicy: Never
