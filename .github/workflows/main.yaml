@@ -20,6 +20,11 @@ jobs:
         with:
           go-version: 1.16
 
+      - name: Install Helm
+        uses: azure/setup-helm@v1
+        with:
+          version: v3.5.2
+
       - name: Prepare
         id: prep
         run: |
@@ -110,9 +115,3 @@ jobs:
         if: ${{ steps.prep.outputs.release_chart == 'true' }}
         with:
           version: v3.5.2
-
-      - name: Run chart-releaser
-        uses: helm/chart-releaser-action@v1.2.0
-        if: ${{ steps.prep.outputs.release_chart == 'true' }}
-        env:
-          CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
