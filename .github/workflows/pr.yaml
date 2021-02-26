@@ -107,7 +107,7 @@ jobs:
       - name: Update version in Chart.yaml
         uses: mikefarah/yq@v4.6.0
         with:
-          cmd: yq eval '.version = "0.0.0+${{ steps.prep.outputs.version }}"' -i charts/captain-hook/Chart.yaml
+          cmd: yq eval '.version = "0.0.0-${{ steps.prep.outputs.version }}"' -i charts/captain-hook/Chart.yaml
 
       - name: Set up chart-testing
         uses: helm/chart-testing-action@v2.0.1
