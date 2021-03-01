@@ -74,8 +74,10 @@ func TestWebhooks(t *testing.T) {
 
 			retryDuration := 5 * time.Second
 			handler := Options{
-				maxRetryDuration: &retryDuration,
-				store:            store.NewLoggingStore(),
+				handler: &handler{
+					maxRetryDuration: &retryDuration,
+					store:            store.NewLoggingStore(),
+				},
 			}
 
 			attempts := 0
@@ -89,7 +91,7 @@ func TestWebhooks(t *testing.T) {
 			defer server.Close()
 
 			handler.ForwardURL = server.URL
-			handler.client = server.Client()
+			handler.handler.client = server.Client()
 
 			w := NewFakeRespone(t)
 			handler.handleWebHookRequests(w, r)

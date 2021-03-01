@@ -1,9 +1,13 @@
 package store
 
-import "net/http"
-
 // Store interface to implement a storage strategy.
 type Store interface {
 	// StoreHook stores a webhook in the store.
-	StoreHook(forwardURL string, body string, header http.Header) error
+	StoreHook(forwardURL string, body []byte, headers map[string][]string) (string, error)
+
+	// Success marks a hook as successful.
+	Success(id string) error
+
+	// Marks a hook as error, with the error message.
+	Error(id string, message string) error
 }
