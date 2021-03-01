@@ -34,7 +34,9 @@ func (s *kubernetesStore) StoreHook(forwardURL string, body string, header http.
 	logrus.Debugf("got clientset %s", cs)
 
 	hook := v1alpha12.Hook{
-		ObjectMeta: v1.ObjectMeta{},
+		ObjectMeta: v1.ObjectMeta{
+			GenerateName: "hook-",
+		},
 		Spec: v1alpha12.HookSpec{
 			ForwardURL: forwardURL,
 			Body:       body,
