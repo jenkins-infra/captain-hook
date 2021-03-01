@@ -130,5 +130,5 @@ jobs:
           node_image: kindest/node:v1.19.1
 
       - name: Run chart-testing (install)
-        run: ct install --config ct.yaml
+        run: ct install --config ct.yaml --print-config
         if: steps.list-changed.outputs.changed == 'true'
