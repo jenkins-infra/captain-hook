@@ -13,14 +13,16 @@ import (
 
 type kubernetesStore struct {
 	config *rest.Config
+	namespace string
 }
 
 func NewKubernetesStore() Store {
-	confs, err := rest.InClusterConfig()
+	config, err := rest.InClusterConfig()
 	if err != nil {
 		panic(err)
 	}
-	return &kubernetesStore{config: confs}
+
+	return &kubernetesStore{config: config}
 }
 
 func (s *kubernetesStore) StoreHook(forwardURL string, body string, header http.Header) error {
@@ -43,7 +45,7 @@ func (s *kubernetesStore) StoreHook(forwardURL string, body string, header http.
 	}
 
 	logrus.Debugf("persisting hook %+v", hook)
-	created, err := cs.Hooks("jenkins").Create(context.TODO(), &hook, v1.CreateOptions{})
+	created, err := cs.Hooks(s.namespace).Create(context.TODO(), &hook, v1.CreateOptions{})
 	if err != nil {
 		return err
 	}
