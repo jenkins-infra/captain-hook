@@ -3,7 +3,6 @@ package store
 import (
 	"context"
 	"io/ioutil"
-	"net/http"
 	"os"
 	"strings"
 
@@ -26,10 +25,10 @@ func NewKubernetesStore() Store {
 	return &kubernetesStore{config: config}
 }
 
-func (s *kubernetesStore) StoreHook(forwardURL string, body string, header http.Header) error {
+func (s *kubernetesStore) StoreHook(forwardURL string, body []byte, header map[string][]string) (string, error) {
 	cs, err := v1alpha1.NewForConfig(s.config)
 	if err != nil {
-		return err
+		return "", err
 	}
 	logrus.Debugf("got clientset %s", cs)
 
@@ -39,7 +38,7 @@ func (s *kubernetesStore) StoreHook(forwardURL string, body string, header http.
 		},
 		Spec: v1alpha12.HookSpec{
 			ForwardURL: forwardURL,
-			Body:       body,
+			Body:       string(body),
 			Headers:    header,
 		},
 		Status: v1alpha12.HookStatus{
@@ -50,14 +49,66 @@ func (s *kubernetesStore) StoreHook(forwardURL string, body string, header http.
 	logrus.Debugf("persisting hook %+v", hook)
 	namespace, err := s.namespace()
 	if err != nil {
-		return err
+		return "", err
 	}
 	created, err := cs.Hooks(namespace).Create(context.TODO(), &hook, v1.CreateOptions{})
 	if err != nil {
-		return err
+		return "", err
 	}
 	logrus.Debugf("persisted hook %+v", created)
 
+	return created.ObjectMeta.Name, nil
+}
+
+func (s *kubernetesStore) Success(id string) error {
+	cs, err := v1alpha1.NewForConfig(s.config)
+	if err != nil {
+		return err
+	}
+	logrus.Debugf("got clientset %s", cs)
+
+	namespace, err := s.namespace()
+	if err != nil {
+		return err
+	}
+	hook, err := cs.Hooks(namespace).Get(context.TODO(), id, v1.GetOptions{})
+	if err != nil {
+		return err
+	}
+
+	hook.Status.Status = v1alpha12.HookStatusTypeSuccess
+	hook.Status.Message = ""
+
+	_, err = cs.Hooks(namespace).Update(context.TODO(), hook, v1.UpdateOptions{})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (s *kubernetesStore) Error(id string, message string) error {
+	cs, err := v1alpha1.NewForConfig(s.config)
+	if err != nil {
+		return err
+	}
+	logrus.Debugf("got clientset %s", cs)
+
+	namespace, err := s.namespace()
+	if err != nil {
+		return err
+	}
+	hook, err := cs.Hooks(namespace).Get(context.TODO(), id, v1.GetOptions{})
+	if err != nil {
+		return err
+	}
+
+	hook.Status.Status = v1alpha12.HookStatusTypeFailed
+	hook.Status.Message = message
+
+	_, err = cs.Hooks(namespace).Update(context.TODO(), hook, v1.UpdateOptions{})
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
