@@ -8,8 +8,9 @@ metadata:
     "helm.sh/hook": test
 spec:
   containers:
-    - name: wget
-      image: busybox
-      command: ['wget']
-      args: ['http://{{ include "captain-hook.fullname" . }}:{{ .Values.service.port }}']
+    - name: curl
+      image: curlimages/curl:7.75.0
+      command: ['curl']
+      # this should be --fail-with-body when 7.76.0 is available
+      args: ['--fail','-X','POST','--data','test-message','http://{{ include "captain-hook.fullname" . }}:{{ .Values.service.port }}{{ .Values.hookPath }}']
   restartPolicy: Never

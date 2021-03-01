@@ -2,7 +2,10 @@ package store
 
 import (
 	"context"
+	"io/ioutil"
 	"net/http"
+	"os"
+	"strings"
 
 	v1alpha12 "github.com/garethjevans/captain-hook/pkg/api/captainhookio/v1alpha1"
 	"github.com/garethjevans/captain-hook/pkg/client/clientset/versioned/typed/captainhookio/v1alpha1"
@@ -16,11 +19,11 @@ type kubernetesStore struct {
 }
 
 func NewKubernetesStore() Store {
-	confs, err := rest.InClusterConfig()
+	config, err := rest.InClusterConfig()
 	if err != nil {
 		panic(err)
 	}
-	return &kubernetesStore{config: confs}
+	return &kubernetesStore{config: config}
 }
 
 func (s *kubernetesStore) StoreHook(forwardURL string, body string, header http.Header) error {
@@ -31,7 +34,9 @@ func (s *kubernetesStore) StoreHook(forwardURL string, body string, header http.
 	logrus.Debugf("got clientset %s", cs)
 
 	hook := v1alpha12.Hook{
-		ObjectMeta: v1.ObjectMeta{},
+		ObjectMeta: v1.ObjectMeta{
+			GenerateName: "hook-",
+		},
 		Spec: v1alpha12.HookSpec{
 			ForwardURL: forwardURL,
 			Body:       body,
@@ -43,11 +48,28 @@ func (s *kubernetesStore) StoreHook(forwardURL string, body string, header http.
 	}
 
 	logrus.Debugf("persisting hook %+v", hook)
-	created, err := cs.Hooks("jenkins").Create(context.TODO(), &hook, v1.CreateOptions{})
+	namespace, err := s.namespace()
+	if err != nil {
+		return err
+	}
+	created, err := cs.Hooks(namespace).Create(context.TODO(), &hook, v1.CreateOptions{})
 	if err != nil {
 		return err
 	}
 	logrus.Debugf("persisted hook %+v", created)
 
 	return nil
+}
+
+func (s *kubernetesStore) namespace() (string, error) {
+	if ns := os.Getenv("POD_NAMESPACE"); ns != "" {
+		return ns, nil
+	}
+	if data, err := ioutil.ReadFile("/var/run/secrets/kubernetes.io/serviceaccount/namespace"); err == nil {
+		if ns := strings.TrimSpace(string(data)); len(ns) > 0 {
+			return ns, nil
+		}
+		return "", err
+	}
+	return "", nil
 }
