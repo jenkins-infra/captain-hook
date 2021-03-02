@@ -30,21 +30,30 @@ type Options struct {
 	Version    string
 	ForwardURL string
 	handler    *handler
+	informer   *informer
 }
 
 // NewHook create a new hook handler.
 func NewHook() (*Options, error) {
 	logrus.Infof("creating new webhook listener")
+	h := handler{
+		InsecureRelay:    os.Getenv("INSECURE_RELAY") == "true",
+		maxRetryDuration: &defaultMaxRetryDuration,
+		store:            store.NewKubernetesStore(),
+	}
 	return &Options{
 		Path:       os.Getenv("HOOK_PATH"),
 		Version:    version.Version,
 		ForwardURL: os.Getenv("FORWARD_URL"),
-		handler: &handler{
-			InsecureRelay:    os.Getenv("INSECURE_RELAY") == "true",
-			maxRetryDuration: &defaultMaxRetryDuration,
-			store:            store.NewKubernetesStore(),
+		handler:    &h,
+		informer: &informer{
+			handler: &h,
 		},
 	}, nil
+}
+
+func (o *Options) Start() error {
+	return o.informer.Start()
 }
 
 func (o *Options) Handle(mux *mux.Router) {
@@ -131,10 +140,6 @@ func (o *Options) onGeneralHook(bodyBytes []byte, headers http.Header) error {
 
 	githubDeliveryEvent := headers.Get("X-Github-Delivery")
 	logrus.Debugf("onGeneralHook - %s", githubDeliveryEvent)
-	//decodedHmac, err := base64.StdEncoding.DecodeString(ws.HMAC)
-	//if err != nil {
-	//	log.WithError(err).Errorf("unable to decode hmac")
-	//}
 
 	hook := Hook{
 		ForwardURL: o.ForwardURL,

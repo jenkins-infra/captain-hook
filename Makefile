@@ -50,10 +50,10 @@ dist: $(GO_DEPENDENCIES)
 	docker push garethjevans/captain-hook:dev --disable-content-trust=true
 
 diff:
-	helm diff upgrade --install captain-hook charts/captain-hook --set image.pullPolicy=Always --set replicaCount=2 
+	helm diff upgrade --install captain-hook charts/captain-hook --set image.pullPolicy=Always --set replicaCount=1 
 
 deploy:
-	helm upgrade --install captain-hook charts/captain-hook --set image.pullPolicy=Always --set replicaCount=2 --wait 
+	helm upgrade --install captain-hook charts/captain-hook --set image.pullPolicy=Always --set replicaCount=1
 
 arm: $(GO_DEPENDENCIES)
 	CGO_ENABLED=$(CGO_ENABLED) GOOS=linux GOARCH=arm $(GO) build $(BUILDFLAGS) -o build/arm/$(NAME) cmd/$(NAME)/$(NAME).go
