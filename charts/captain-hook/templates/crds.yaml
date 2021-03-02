@@ -44,16 +44,16 @@ spec:
                   type: integer
                 message:
                   type: string
-        additionalPrinterColumns:
-          - name: name
-            type: string
-            jsonPath: .metadata.name
-          - name: forwardURL
-            type: string
-            jsonPath: .spec.forwardURL
-          - name: status
-            type: string
-            jsonPath: .status.status
+      additionalPrinterColumns:
+        - name: name
+          type: string
+          jsonPath: .metadata.name
+        - name: forwardURL
+          type: string
+          jsonPath: .spec.forwardURL
+        - name: status
+          type: string
+          jsonPath: .status.status
 
   scope: Namespaced
   names:
