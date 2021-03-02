@@ -2,6 +2,8 @@
 
 A Helm chart for github.com/garethjevans/captain-hook
 
+![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
+
 ## Additional Information
 
 This chart is best installed in the same namespace as Jenkins so that it can route webhooks directly
