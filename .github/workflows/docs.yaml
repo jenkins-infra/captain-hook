@@ -2,9 +2,8 @@
 name: Update Docs
 
 on:
-  pull_request:
-    #  schedule:
-    #    - cron: "*/15 * * * *"
+  schedule:
+    - cron: "*/15 * * * *"
 
 jobs:
   build:
@@ -24,12 +23,10 @@ jobs:
           git diff
           git status
 
-            #args: update --determine-version-from-dockerfile --display-updates -w
-
-            #      - name: Create Pull Request
-            #        id: cpr
-            #        uses: peter-evans/create-pull-request@v3
-            #        with:
-            #          commit-message: 'chore(docs): regenerated docs'
-            #          signoff: false
-            #          title: 'chore(docs): regenerated docs'
+      - name: Create Pull Request
+        id: cpr
+        uses: peter-evans/create-pull-request@v3
+        with:
+          commit-message: 'chore(docs): regenerated helm docs'
+          signoff: false
+          title: 'chore(docs): regenerated helm docs'
