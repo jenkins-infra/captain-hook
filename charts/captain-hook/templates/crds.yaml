@@ -45,16 +45,15 @@ spec:
                 message:
                   type: string
       additionalPrinterColumns:
-        - name: name
-          type: string
-          jsonPath: .metadata.name
-        - name: forwardURL
+        - name: ForwardURL
           type: string
           jsonPath: .spec.forwardURL
-        - name: status
+        - name: Status
           type: string
           jsonPath: .status.status
-
+        - name: Age
+          type: date
+          jsonPath: .metadata.creationTimestamp
   scope: Namespaced
   names:
     kind: Hook
