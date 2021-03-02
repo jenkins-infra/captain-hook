@@ -1,0 +1,32 @@
+---
+name: Update Docs
+
+on:
+  schedule:
+    - cron: "*/15 * * * *"
+
+jobs:
+  build:
+    name: Update Docs
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source code
+        uses: actions/checkout@v2
+
+      - name: Update
+        uses: docker://jnorwood/helm-docs:latest
+        with:
+          entrypoint: helm-docs
+
+      - name: Debug
+        run: |
+          git diff
+          git status
+
+      - name: Create Pull Request
+        id: cpr
+        uses: peter-evans/create-pull-request@v3
+        with:
+          commit-message: 'chore(docs): regenerated helm docs'
+          signoff: false
+          title: 'chore(docs): regenerated helm docs'
