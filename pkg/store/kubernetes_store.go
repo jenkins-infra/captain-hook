@@ -42,7 +42,7 @@ func (s *kubernetesStore) StoreHook(forwardURL string, body []byte, header map[s
 			Headers:    header,
 		},
 		Status: v1alpha12.HookStatus{
-			Status: v1alpha12.HookStatusTypePending,
+			Phase: v1alpha12.HookPhasePending,
 		},
 	}
 
@@ -76,7 +76,7 @@ func (s *kubernetesStore) Success(id string) error {
 		return err
 	}
 
-	hook.Status.Status = v1alpha12.HookStatusTypeSuccess
+	hook.Status.Phase = v1alpha12.HookPhaseSuccess
 	hook.Status.Message = ""
 
 	_, err = cs.Hooks(namespace).Update(context.TODO(), hook, v1.UpdateOptions{})
@@ -102,7 +102,7 @@ func (s *kubernetesStore) Error(id string, message string) error {
 		return err
 	}
 
-	hook.Status.Status = v1alpha12.HookStatusTypeFailed
+	hook.Status.Phase = v1alpha12.HookPhaseFailed
 	hook.Status.Message = message
 
 	_, err = cs.Hooks(namespace).Update(context.TODO(), hook, v1.UpdateOptions{})
@@ -110,6 +110,25 @@ func (s *kubernetesStore) Error(id string, message string) error {
 		return err
 	}
 	return nil
+}
+
+func (s *kubernetesStore) DeleteOldHooks() error {
+	cs, err := v1alpha1.NewForConfig(s.config)
+	if err != nil {
+		return err
+	}
+	logrus.Debugf("got clientset %s", cs)
+
+	namespace, err := s.namespace()
+	if err != nil {
+		return err
+	}
+
+	listOpts := v1.ListOptions{}
+
+	deleteOpts := v1.DeleteOptions{}
+
+	return cs.Hooks(namespace).DeleteCollection(context.TODO(), deleteOpts, listOpts)
 }
 
 func (s *kubernetesStore) namespace() (string, error) {

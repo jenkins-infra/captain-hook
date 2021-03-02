@@ -50,7 +50,7 @@ spec:
           jsonPath: .spec.forwardURL
         - name: Status
           type: string
-          jsonPath: .status.status
+          jsonPath: .status.phase
         - name: Age
           type: date
           jsonPath: .metadata.creationTimestamp

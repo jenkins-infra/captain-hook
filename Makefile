@@ -43,6 +43,18 @@ linux: $(GO_DEPENDENCIES)
 	CGO_ENABLED=$(CGO_ENABLED) GOOS=linux GOARCH=amd64 $(GO) build $(BUILDFLAGS) -o build/linux/$(NAME) cmd/$(NAME)/$(NAME).go
 	chmod +x build/linux/$(NAME)
 
+dist: $(GO_DEPENDENCIES)
+	CGO_ENABLED=$(CGO_ENABLED) GOOS=linux GOARCH=amd64 $(GO) build $(BUILDFLAGS) -o dist/captain-hook-linux_linux_amd64/$(NAME) cmd/$(NAME)/$(NAME).go
+	chmod +x dist/captain-hook-linux_linux_amd64/$(NAME)
+	docker build --platform linux/amd64 -t garethjevans/captain-hook:dev .
+	docker push garethjevans/captain-hook:dev --disable-content-trust=true
+
+diff:
+	helm diff upgrade --install captain-hook charts/captain-hook --set image.pullPolicy=Always --set replicaCount=2 
+
+deploy:
+	helm upgrade --install captain-hook charts/captain-hook --set image.pullPolicy=Always --set replicaCount=2 --wait 
+
 arm: $(GO_DEPENDENCIES)
 	CGO_ENABLED=$(CGO_ENABLED) GOOS=linux GOARCH=arm $(GO) build $(BUILDFLAGS) -o build/arm/$(NAME) cmd/$(NAME)/$(NAME).go
 	chmod +x build/arm/$(NAME)
@@ -105,7 +117,7 @@ modtidy:
 
 mod: modtidy build
 
-.PHONY: release clean arm
+.PHONY: dist release clean
 
 
 generate-fakes:
