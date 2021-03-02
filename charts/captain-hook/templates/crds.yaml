@@ -1,5 +1,5 @@
 ---
-apiVersion: apiextensions.k8s.io/v1beta1
+apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   name: hooks.captainhook.io
@@ -11,6 +11,51 @@ metadata:
     heritage: "{{ .Release.Service }}"
 spec:
   group: captainhook.io
+  versions:
+    - name: v1alpha1
+      # Each version can be enabled/disabled by Served flag.
+      served: true
+      # One and only one version must be marked as the storage version.
+      storage: true
+      # Schema
+      schema:
+        openAPIV3Schema:
+          type: object
+          properties:
+            spec:
+              type: object
+              properties:
+                forwardURL:
+                  type: string
+                body:
+                  type: string
+                headers:
+                  type: object
+                  additionalProperties:
+                    type: array
+                    items:
+                      type: string
+            status:
+              type: object
+              properties:
+                status:
+                  type: string
+                attempts:
+                  type: integer
+                message:
+                  type: string
+        additionalPrinterColumns:
+          - name: name
+            type: string
+            jsonPath: .metadata.name
+          - name: forwardURL
+            type: string
+            jsonPath: .spec.forwardURL
+          - name: status
+            type: string
+            jsonPath: .status.status
+
+  scope: Namespaced
   names:
     kind: Hook
     listKind: HookList
@@ -18,5 +63,3 @@ spec:
     shortNames:
       - hook
     singular: hook
-  scope: Namespaced
-  version: v1alpha1
