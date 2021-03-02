@@ -1,6 +1,8 @@
 package hook
 
 import (
+	"time"
+
 	v1alpha12 "github.com/garethjevans/captain-hook/pkg/api/captainhookio/v1alpha1"
 	"github.com/garethjevans/captain-hook/pkg/client/clientset/versioned"
 	"github.com/garethjevans/captain-hook/pkg/client/informers/externalversions"
@@ -8,6 +10,10 @@ import (
 	"github.com/sirupsen/logrus"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/cache"
+)
+
+const (
+	resyncPeriod = time.Second * 30
 )
 
 type informer struct {
@@ -33,7 +39,7 @@ func (i *informer) Start() error {
 	}
 
 	logrus.Infof("creating shared informer factory")
-	factory := externalversions.NewSharedInformerFactoryWithOptions(client, 0, externalversions.WithNamespace(namespace))
+	factory := externalversions.NewSharedInformerFactoryWithOptions(client, resyncPeriod, externalversions.WithNamespace(namespace))
 	informer := factory.Captainhook().V1alpha1().Hooks().Informer()
 
 	stopper := make(chan struct{})
@@ -42,7 +48,7 @@ func (i *informer) Start() error {
 	informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
 		AddFunc: func(obj interface{}) {
 			h := obj.(*v1alpha12.Hook)
-			logrus.Infof("Created hook in namespace %s, name %s", h.ObjectMeta.Namespace, h.ObjectMeta.Name)
+			logrus.Infof("Created hook in namespace %s, name %s at %s", h.ObjectMeta.Namespace, h.ObjectMeta.Name, h.ObjectMeta.CreationTimestamp)
 		},
 		DeleteFunc: func(obj interface{}) {
 			h := obj.(*v1alpha12.Hook)
@@ -50,7 +56,7 @@ func (i *informer) Start() error {
 		},
 		UpdateFunc: func(oldObj interface{}, newObj interface{}) {
 			h := newObj.(*v1alpha12.Hook)
-			logrus.Infof("Updated hook in namespace %s, name %s", h.ObjectMeta.Namespace, h.ObjectMeta.Name)
+			logrus.Infof("Updated hook in namespace %s, name %s at %s", h.ObjectMeta.Namespace, h.ObjectMeta.Name, h.ObjectMeta.CreationTimestamp)
 		},
 	})
 	informer.Run(stopper)

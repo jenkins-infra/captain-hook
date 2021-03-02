@@ -56,10 +56,11 @@ func (c *ListenCmd) Run() error {
 		return err
 	}
 
-	err = options.Start()
-	if err != nil {
-		return err
-	}
+	go func() {
+		if err = options.Start(); err != nil {
+			logrus.Fatal(err)
+		}
+	}()
 
 	// create a new router
 	r := mux.NewRouter()
