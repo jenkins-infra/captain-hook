@@ -15,11 +15,15 @@ import (
 )
 
 type handler struct {
-	ForwardURL       string
 	InsecureRelay    bool
 	client           *http.Client
 	maxRetryDuration *time.Duration
 	store            store.Store
+	sender           sender
+}
+
+type sender interface {
+	send(forwardURL string, bodyBytes []byte, header http.Header) error
 }
 
 func (h *handler) Handle(hook *Hook) error {
@@ -31,20 +35,23 @@ func (h *handler) Handle(hook *Hook) error {
 
 	hook.ID = hookID
 
+	if h.sender == nil {
+		h.sender = h
+	}
 	// attempt to send
-	err = h.send(hook.ForwardURL, hook.Body, hook.Headers)
+	err = h.sender.send(hook.ForwardURL, hook.Body, hook.Headers)
 	if err != nil {
 		// if failed, mark as failed with the error as the message
 		err = h.store.Error(hookID, err.Error())
 		if err != nil {
 			return err
 		}
-	}
-
-	// if success, mark as successful,
-	err = h.store.Success(hookID)
-	if err != nil {
-		return err
+	} else {
+		// if success, mark as successful,
+		err = h.store.Success(hookID)
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil
