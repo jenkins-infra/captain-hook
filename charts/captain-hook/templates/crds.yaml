@@ -44,13 +44,32 @@ spec:
                   type: integer
                 message:
                   type: string
+                noRetryBefore:
+                  type: string
+                completedTimestamp:
+                  type: string
       additionalPrinterColumns:
-        - name: ForwardURL
+        - name: Forward URL
           type: string
           jsonPath: .spec.forwardURL
         - name: Status
           type: string
-          jsonPath: .status.status
+          jsonPath: .status.phase
+        - name: Attempts
+          type: date
+          description: The number of attempts the webhooks has had.
+          jsonPath: .status.attempts
+          priority: 1
+        - name: No Retry Before
+          type: date
+          description: Do not attempt to retry this webhook before.
+          jsonPath: .status.noRetryBefore
+          priority: 1
+        - name: Completed
+          type: date
+          description: When this hook was successfully sent.
+          jsonPath: .status.completedTimestamp
+          priority: 1
         - name: Age
           type: date
           jsonPath: .metadata.creationTimestamp

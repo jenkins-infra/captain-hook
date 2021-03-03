@@ -2,19 +2,20 @@ package store
 
 import (
 	"context"
-	"io/ioutil"
-	"os"
-	"strings"
+	"time"
+
+	"github.com/garethjevans/captain-hook/pkg/client/clientset/versioned"
 
 	v1alpha12 "github.com/garethjevans/captain-hook/pkg/api/captainhookio/v1alpha1"
-	"github.com/garethjevans/captain-hook/pkg/client/clientset/versioned/typed/captainhookio/v1alpha1"
+	"github.com/garethjevans/captain-hook/pkg/util"
 	"github.com/sirupsen/logrus"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/rest"
 )
 
 type kubernetesStore struct {
-	config *rest.Config
+	namespace string
+	client    versioned.Interface
 }
 
 func NewKubernetesStore() Store {
@@ -22,16 +23,20 @@ func NewKubernetesStore() Store {
 	if err != nil {
 		panic(err)
 	}
-	return &kubernetesStore{config: config}
+	client, err := versioned.NewForConfig(config)
+	if err != nil {
+		panic(err)
+	}
+
+	namespace, err := util.Namespace()
+	if err != nil {
+		panic(err)
+	}
+
+	return &kubernetesStore{client: client, namespace: namespace}
 }
 
 func (s *kubernetesStore) StoreHook(forwardURL string, body []byte, header map[string][]string) (string, error) {
-	cs, err := v1alpha1.NewForConfig(s.config)
-	if err != nil {
-		return "", err
-	}
-	logrus.Debugf("got clientset %s", cs)
-
 	hook := v1alpha12.Hook{
 		ObjectMeta: v1.ObjectMeta{
 			GenerateName: "hook-",
@@ -42,44 +47,32 @@ func (s *kubernetesStore) StoreHook(forwardURL string, body []byte, header map[s
 			Headers:    header,
 		},
 		Status: v1alpha12.HookStatus{
-			Status: v1alpha12.HookStatusTypePending,
+			Phase: v1alpha12.HookPhasePending,
 		},
 	}
 
-	logrus.Debugf("persisting hook %+v", hook)
-	namespace, err := s.namespace()
+	created, err := s.client.CaptainhookV1alpha1().Hooks(s.namespace).Create(context.TODO(), &hook, v1.CreateOptions{})
 	if err != nil {
 		return "", err
 	}
-	created, err := cs.Hooks(namespace).Create(context.TODO(), &hook, v1.CreateOptions{})
-	if err != nil {
-		return "", err
-	}
+
 	logrus.Debugf("persisted hook %+v", created)
 
 	return created.ObjectMeta.Name, nil
 }
 
 func (s *kubernetesStore) Success(id string) error {
-	cs, err := v1alpha1.NewForConfig(s.config)
-	if err != nil {
-		return err
-	}
-	logrus.Debugf("got clientset %s", cs)
-
-	namespace, err := s.namespace()
-	if err != nil {
-		return err
-	}
-	hook, err := cs.Hooks(namespace).Get(context.TODO(), id, v1.GetOptions{})
+	hook, err := s.client.CaptainhookV1alpha1().Hooks(s.namespace).Get(context.TODO(), id, v1.GetOptions{})
 	if err != nil {
 		return err
 	}
 
-	hook.Status.Status = v1alpha12.HookStatusTypeSuccess
+	hook.Status.Phase = v1alpha12.HookPhaseSuccess
 	hook.Status.Message = ""
+	now := v1.Now()
+	hook.Status.CompletedTimestamp = &now
 
-	_, err = cs.Hooks(namespace).Update(context.TODO(), hook, v1.UpdateOptions{})
+	_, err = s.client.CaptainhookV1alpha1().Hooks(s.namespace).Update(context.TODO(), hook, v1.UpdateOptions{})
 	if err != nil {
 		return err
 	}
@@ -87,40 +80,25 @@ func (s *kubernetesStore) Success(id string) error {
 }
 
 func (s *kubernetesStore) Error(id string, message string) error {
-	cs, err := v1alpha1.NewForConfig(s.config)
-	if err != nil {
-		return err
-	}
-	logrus.Debugf("got clientset %s", cs)
-
-	namespace, err := s.namespace()
-	if err != nil {
-		return err
-	}
-	hook, err := cs.Hooks(namespace).Get(context.TODO(), id, v1.GetOptions{})
+	hook, err := s.client.CaptainhookV1alpha1().Hooks(s.namespace).Get(context.TODO(), id, v1.GetOptions{})
 	if err != nil {
 		return err
 	}
 
-	hook.Status.Status = v1alpha12.HookStatusTypeFailed
+	hook.Status.Phase = v1alpha12.HookPhaseFailed
 	hook.Status.Message = message
 
-	_, err = cs.Hooks(namespace).Update(context.TODO(), hook, v1.UpdateOptions{})
+	// FIXME need to add the correct time here
+	retry := v1.NewTime(time.Now().Add(time.Minute * 1))
+	hook.Status.NoRetryBefore = &retry
+
+	_, err = s.client.CaptainhookV1alpha1().Hooks(s.namespace).Update(context.TODO(), hook, v1.UpdateOptions{})
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func (s *kubernetesStore) namespace() (string, error) {
-	if ns := os.Getenv("POD_NAMESPACE"); ns != "" {
-		return ns, nil
-	}
-	if data, err := ioutil.ReadFile("/var/run/secrets/kubernetes.io/serviceaccount/namespace"); err == nil {
-		if ns := strings.TrimSpace(string(data)); len(ns) > 0 {
-			return ns, nil
-		}
-		return "", err
-	}
-	return "", nil
+func (s *kubernetesStore) Delete(id string) error {
+	return s.client.CaptainhookV1alpha1().Hooks(s.namespace).Delete(context.TODO(), id, v1.DeleteOptions{})
 }

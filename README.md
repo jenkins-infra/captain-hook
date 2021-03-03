@@ -17,4 +17,17 @@ helm install captain-hook captain-hook/captain-hook
 
 Configuration options on the helm chart can be found [here](charts/captain-hook/README.md).
 
+## Debugging
+
+Once installed within a namespace, you can view the hooks within the system with:
+
+```
+kubectl get hooks
+```
+
+Or for more information:
+
+```
+kubectl get hooks -owide
+```
 

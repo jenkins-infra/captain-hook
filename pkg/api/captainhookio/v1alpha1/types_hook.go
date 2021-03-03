@@ -30,23 +30,27 @@ type HookSpec struct {
 
 // HookStatus is the status for a Hook resource.
 type HookStatus struct {
-	Status   HookStatusType `json:"status,omitempty" protobuf:"bytes,1,opt,name=status"`
-	Attempts int            `json:"attempts,omitempty" protobuf:"bytes,2,opt,name=attempts"`
-	Message  string         `json:"message,omitempty" protobuf:"bytes,3,opt,name=message"`
+	Phase              HookPhase    `json:"phase,omitempty" protobuf:"bytes,1,opt,name=phase,casttype=PodPhase"`
+	Attempts           int          `json:"attempts,omitempty" protobuf:"bytes,2,opt,name=attempts"`
+	Message            string       `json:"message,omitempty" protobuf:"bytes,3,opt,name=message"`
+	NoRetryBefore      *metav1.Time `json:"noRetryBefore,omitempty" protobuf:"bytes,4,opt,name=noRetryBefore"`
+	CompletedTimestamp *metav1.Time `json:"completedTimestamp,omitempty" protobuf:"bytes,5,opt,name=completedTimestamp"`
 }
 
 // HookStatusType is the status of a hook; usually success or failed at completion.
-type HookStatusType string
+type HookPhase string
 
 const (
-	// HookStatusTypeNone an hook step has not started yet.
-	HookStatusTypeNone HookStatusType = ""
-	// HookStatusTypePending the hook currently being relayed.
-	HookStatusTypePending HookStatusType = "Pending"
-	// HookStatusTypeStatus the hook has been relayed.
-	HookStatusTypeSuccess HookStatusType = "Success"
-	// ReleaseStatusTypeFailed the hook has failed to be relayed.
-	HookStatusTypeFailed HookStatusType = "Failed"
+	// HookPhaseNone an hook step has not started yet.
+	HookPhaseNone HookPhase = ""
+	// HookPhasePending the hook currently being relayed.
+	HookPhasePending HookPhase = "Pending"
+	// HookPhaseStatus the hook has been relayed.
+	HookPhaseSending HookPhase = "Sending"
+	// HookPhaseStatus the hook has been relayed.
+	HookPhaseSuccess HookPhase = "Success"
+	// HookPhaseStatus the hook has failed to be relayed.
+	HookPhaseFailed HookPhase = "Failed"
 )
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
