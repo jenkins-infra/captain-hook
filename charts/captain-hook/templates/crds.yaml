@@ -49,19 +49,15 @@ spec:
                 completedTimestamp:
                   type: string
       additionalPrinterColumns:
-        - name: Forward URL
-          type: string
-          jsonPath: .spec.forwardURL
         - name: Status
           type: string
           jsonPath: .status.phase
         - name: Attempts
-          type: date
+          type: integer
           description: The number of attempts the webhooks has had.
           jsonPath: .status.attempts
-          priority: 1
         - name: No Retry Before
-          type: date
+          type: string
           description: Do not attempt to retry this webhook before.
           jsonPath: .status.noRetryBefore
           priority: 1
@@ -73,6 +69,10 @@ spec:
         - name: Age
           type: date
           jsonPath: .metadata.creationTimestamp
+        - name: Error
+          type: string
+          jsonPath: .status.message
+          priority: 1
   scope: Namespaced
   names:
     kind: Hook

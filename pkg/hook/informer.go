@@ -1,8 +1,9 @@
 package hook
 
 import (
-	"context"
 	"time"
+
+	"github.com/garethjevans/captain-hook/pkg/store"
 
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
@@ -20,10 +21,11 @@ const (
 )
 
 type informer struct {
-	handler         *handler
 	maxAgeInSeconds int
 	client          versioned.Interface
 	namespace       string
+	sender          Sender
+	store           store.Store
 }
 
 func (i *informer) Start() error {
@@ -66,15 +68,16 @@ func (i *informer) Start() error {
 			h := newObj.(*v1alpha12.Hook)
 			logrus.Infof("Updated hook in namespace %s, name %s at %s", h.ObjectMeta.Namespace, h.ObjectMeta.Name, h.ObjectMeta.CreationTimestamp)
 			if h.Status.Phase == v1alpha12.HookPhaseSuccess {
+				logrus.Infof("Hook %s is success, checking age... %s", h.ObjectMeta.Name, h.Status.CompletedTimestamp)
 				err := i.DeleteIfOld(h)
 				if err != nil {
 					logrus.Errorf("delete if old failed: %s", err.Error())
 				}
-			}
-
-			if h.Status.Phase == v1alpha12.HookPhaseFailed {
+			} else if h.Status.Phase == v1alpha12.HookPhaseFailed {
 				now := v1.Now()
-				if h.Status.NoRetryBefore.Before(&now) {
+				retry := h.Status.NoRetryBefore
+				logrus.Infof("checking if retry date %s is before %s", retry, now)
+				if retry.Before(&now) {
 					err := i.Retry(h)
 					if err != nil {
 						logrus.Errorf("retry failed: %s", err.Error())
@@ -92,9 +95,11 @@ func (i *informer) DeleteIfOld(hook *v1alpha12.Hook) error {
 	// if phase is successful
 	if hook.Status.Phase == v1alpha12.HookPhaseSuccess {
 		// and age is more than period set
-		if hook.Status.CompletedTimestamp.After(v1.Now().Add(time.Second * time.Duration(i.maxAgeInSeconds))) {
+		ts := v1.Now().Add(time.Second * time.Duration(-1*i.maxAgeInSeconds))
+		logrus.Infof("checking if hook %s is older than %s", hook.ObjectMeta.Name, ts)
+		if ts.After(hook.Status.CompletedTimestamp.Time) {
 			// then delete
-			err := i.client.CaptainhookV1alpha1().Hooks(hook.ObjectMeta.Namespace).Delete(context.TODO(), hook.ObjectMeta.Name, v1.DeleteOptions{})
+			err := i.store.Delete(hook.ObjectMeta.Name)
 			if err != nil {
 				return err
 			}
@@ -106,23 +111,33 @@ func (i *informer) DeleteIfOld(hook *v1alpha12.Hook) error {
 
 func (i *informer) Retry(hook *v1alpha12.Hook) error {
 	// if phase is failed or none
+	if hook.Status.Phase == v1alpha12.HookPhaseFailed {
+		logrus.Infof("retrying hook %s", hook.ObjectMeta.Name)
+		err := i.store.MarkForRetry(hook.ObjectMeta.Name)
+		if err != nil {
+			return err
+		}
 
-	// set phase to pending, increment attempt
-	hook.Status.Phase = v1alpha12.HookPhasePending
-	hook.Status.Attempts = hook.Status.Attempts + 1
+		// attempt to send
+		logrus.Infof("resending hook %s", hook.ObjectMeta.Name)
+		err = i.sender.send(hook.Spec.ForwardURL, []byte(hook.Spec.Body), hook.Spec.Headers)
 
-	hook, err := i.client.CaptainhookV1alpha1().Hooks(hook.ObjectMeta.Namespace).Update(context.TODO(), hook, v1.UpdateOptions{})
-	if err != nil {
-		return err
+		if err != nil {
+			// mark as failed if errored
+			logrus.Infof("recording hook %s as failed: %s", hook.ObjectMeta.Name, err.Error())
+			err = i.store.Error(hook.ObjectMeta.Name, err.Error())
+			if err != nil {
+				return err
+			}
+		} else {
+			// mark as success if passed
+			logrus.Infof("recording hook %s as success", hook.ObjectMeta.Name)
+			err = i.store.Success(hook.ObjectMeta.Name)
+			if err != nil {
+				return err
+			}
+		}
 	}
-
-	// attempt to send
-
-	// mark as success if passed
-
-	// mark as failed if errored
-
-	// should probably add a timestamp to backoff until
 
 	return nil
 }
