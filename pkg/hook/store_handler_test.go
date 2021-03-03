@@ -11,9 +11,8 @@ func TestHandle_Success(t *testing.T) {
 	s := store.FakeStore{}
 	sender := fakeSender{}
 	h := handler{
-		store:            &s,
-		maxRetryDuration: &defaultMaxRetryDuration,
-		sender:           &sender,
+		store:  &s,
+		sender: &sender,
 	}
 
 	hook := Hook{
@@ -32,9 +31,8 @@ func TestHandle_Error(t *testing.T) {
 	s := store.FakeStore{}
 	sender := fakeSender{fail: true}
 	h := handler{
-		store:            &s,
-		maxRetryDuration: &defaultMaxRetryDuration,
-		sender:           &sender,
+		store:  &s,
+		sender: &sender,
 	}
 
 	hook := Hook{

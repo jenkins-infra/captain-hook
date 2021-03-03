@@ -102,3 +102,21 @@ func (s *kubernetesStore) Error(id string, message string) error {
 func (s *kubernetesStore) Delete(id string) error {
 	return s.client.CaptainhookV1alpha1().Hooks(s.namespace).Delete(context.TODO(), id, v1.DeleteOptions{})
 }
+
+func (s *kubernetesStore) MarkForRetry(id string) error {
+	hook, err := s.client.CaptainhookV1alpha1().Hooks(s.namespace).Get(context.TODO(), id, v1.GetOptions{})
+	if err != nil {
+		return err
+	}
+
+	hook.Status.Phase = v1alpha12.HookPhasePending
+	hook.Status.Message = ""
+	hook.Status.Attempts = hook.Status.Attempts + 1
+	hook.Status.NoRetryBefore = nil
+
+	_, err = s.client.CaptainhookV1alpha1().Hooks(s.namespace).Update(context.TODO(), hook, v1.UpdateOptions{})
+	if err != nil {
+		return err
+	}
+	return nil
+}

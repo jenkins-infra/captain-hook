@@ -6,6 +6,8 @@ type FakeStore struct {
 	MessageIDs        []string
 	SuccessMessageIDs []string
 	ErroredMessageIDs []string
+	DeletedMessageIDs []string
+	RetryMessageIDs   []string
 }
 
 func (s *FakeStore) StoreHook(forwardURL string, body []byte, header map[string][]string) (string, error) {
@@ -21,5 +23,15 @@ func (s *FakeStore) Success(id string) error {
 
 func (s *FakeStore) Error(id string, message string) error {
 	s.ErroredMessageIDs = append(s.ErroredMessageIDs, id)
+	return nil
+}
+
+func (s *FakeStore) Delete(id string) error {
+	s.DeletedMessageIDs = append(s.DeletedMessageIDs, id)
+	return nil
+}
+
+func (s *FakeStore) MarkForRetry(id string) error {
+	s.RetryMessageIDs = append(s.RetryMessageIDs, id)
 	return nil
 }
