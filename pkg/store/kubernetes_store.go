@@ -13,6 +13,8 @@ import (
 	"k8s.io/client-go/rest"
 )
 
+var _ Store = &kubernetesStore{}
+
 type kubernetesStore struct {
 	namespace string
 	client    versioned.Interface

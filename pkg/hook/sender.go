@@ -13,6 +13,8 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+var _ Sender = &sender{}
+
 type Sender interface {
 	send(forwardURL string, bodyBytes []byte, header map[string][]string) error
 }

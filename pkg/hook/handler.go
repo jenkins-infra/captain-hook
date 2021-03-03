@@ -32,17 +32,22 @@ type Options struct {
 // NewHook create a new hook handler.
 func NewHook() (*Options, error) {
 	logrus.Infof("creating new webhook listener")
-	h := handler{
-		store: store.NewKubernetesStore(),
-	}
+
+	store := store.NewKubernetesStore()
+	sender := NewSender()
+
 	return &Options{
 		Path:       os.Getenv("HOOK_PATH"),
 		Version:    version.Version,
 		ForwardURL: os.Getenv("FORWARD_URL"),
-		handler:    &h,
+		handler: &handler{
+			store:  store,
+			sender: sender,
+		},
 		informer: &informer{
-			handler:         &h,
 			maxAgeInSeconds: Atoi(os.Getenv("MAX_AGE_IN_SECONDS")),
+			store:           store,
+			sender:          sender,
 		},
 	}, nil
 }

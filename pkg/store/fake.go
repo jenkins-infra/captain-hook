@@ -2,6 +2,8 @@ package store
 
 import "github.com/google/uuid"
 
+var _ Store = &FakeStore{}
+
 type FakeStore struct {
 	MessageIDs        []string
 	SuccessMessageIDs []string

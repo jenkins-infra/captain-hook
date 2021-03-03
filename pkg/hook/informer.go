@@ -1,8 +1,9 @@
 package hook
 
 import (
-	"context"
 	"time"
+
+	"github.com/garethjevans/captain-hook/pkg/store"
 
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
@@ -20,10 +21,11 @@ const (
 )
 
 type informer struct {
-	handler         *handler
 	maxAgeInSeconds int
 	client          versioned.Interface
 	namespace       string
+	sender          Sender
+	store           store.Store
 }
 
 func (i *informer) Start() error {
@@ -94,7 +96,7 @@ func (i *informer) DeleteIfOld(hook *v1alpha12.Hook) error {
 		// and age is more than period set
 		if hook.Status.CompletedTimestamp.After(v1.Now().Add(time.Second * time.Duration(i.maxAgeInSeconds))) {
 			// then delete
-			err := i.client.CaptainhookV1alpha1().Hooks(hook.ObjectMeta.Namespace).Delete(context.TODO(), hook.ObjectMeta.Name, v1.DeleteOptions{})
+			err := i.store.Delete(hook.ObjectMeta.Name)
 			if err != nil {
 				return err
 			}
@@ -106,23 +108,29 @@ func (i *informer) DeleteIfOld(hook *v1alpha12.Hook) error {
 
 func (i *informer) Retry(hook *v1alpha12.Hook) error {
 	// if phase is failed or none
+	if hook.Status.Phase == v1alpha12.HookPhaseFailed {
+		err := i.store.MarkForRetry(hook.ObjectMeta.Name)
+		if err != nil {
+			return err
+		}
 
-	// set phase to pending, increment attempt
-	hook.Status.Phase = v1alpha12.HookPhasePending
-	hook.Status.Attempts = hook.Status.Attempts + 1
+		// attempt to send
+		err = i.sender.send(hook.Spec.ForwardURL, []byte(hook.Spec.Body), hook.Spec.Headers)
 
-	hook, err := i.client.CaptainhookV1alpha1().Hooks(hook.ObjectMeta.Namespace).Update(context.TODO(), hook, v1.UpdateOptions{})
-	if err != nil {
-		return err
+		if err != nil {
+			// mark as failed if errored
+			err = i.store.Error(hook.ObjectMeta.Name, err.Error())
+			if err != nil {
+				return err
+			}
+		} else {
+			// mark as success if passed
+			err = i.store.Success(hook.ObjectMeta.Name)
+			if err != nil {
+				return err
+			}
+		}
 	}
-
-	// attempt to send
-
-	// mark as success if passed
-
-	// mark as failed if errored
-
-	// should probably add a timestamp to backoff until
 
 	return nil
 }
