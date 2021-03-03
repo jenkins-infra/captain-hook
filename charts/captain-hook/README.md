@@ -22,35 +22,30 @@ $ helm install captain-hook captain-hook/captain-hook
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| affinity | object | `{}` |  |
+| attemptRetryAfterInSeconds | int | `60` | Number of seconds the next retry should not be attempted before |
 | autoscaling.enabled | bool | `false` |  |
 | autoscaling.maxReplicas | int | `100` |  |
 | autoscaling.minReplicas | int | `1` |  |
 | autoscaling.targetCPUUtilizationPercentage | int | `80` |  |
-| forwardURL | string | `"http://jenkins:8080/github-webhook/"` |  |
+| forwardURL | string | `"http://jenkins:8080/github-webhook/"` | Url to send all webhook events to |
 | fullnameOverride | string | `""` |  |
-| hookPath | string | `"/hook"` |  |
+| hookPath | string | `"/hook"` | Path to listen for webhook events on |
 | image.pullPolicy | string | `"IfNotPresent"` |  |
 | image.repository | string | `"garethjevans/captain-hook"` |  |
-| image.tag | string | `""` |  |
+| image.tag | string | `""` | Overrides the image tag whose default is the chart appVersion. |
 | imagePullSecrets | list | `[]` |  |
 | ingress.annotations | object | `{}` |  |
-| ingress.enabled | bool | `true` |  |
+| ingress.enabled | bool | `true` | Create an ingress resource for this service |
 | ingress.hosts[0].paths[0].backend.service.name | string | `"captain-hook"` |  |
 | ingress.hosts[0].paths[0].backend.service.port.number | int | `8080` |  |
-| ingress.hosts[0].paths[0].pathType | string | `"ImplementationSpecific"` |  |
 | ingress.tls | list | `[]` |  |
-| insecureRelay | bool | `false` |  |
+| insecureRelay | bool | `false` | Should we relay to insecure tls endpoints |
+| maxAgeInSeconds | int | `3600` | Maximum age in seconds a successful webhook should be live for |
+| maxAttempts | int | `10` | Maximum number of times this webhook should be attempted |
 | nameOverride | string | `""` |  |
-| nodeSelector | object | `{}` |  |
-| podAnnotations | object | `{}` |  |
-| podSecurityContext | object | `{}` |  |
-| replicaCount | int | `1` |  |
+| replicaCount | int | `1` | Number of replicas to run |
 | resources | object | `{}` |  |
-| securityContext | object | `{}` |  |
 | service.port | int | `8080` |  |
 | service.type | string | `"ClusterIP"` |  |
-| serviceAccount.annotations | object | `{}` |  |
-| serviceAccount.create | bool | `true` |  |
-| serviceAccount.name | string | `""` |  |
-| tolerations | list | `[]` |  |
+| serviceAccount.create | bool | `true` | Specifies whether a service account should be created |
+| serviceAccount.name | string | `""` | The name of the service account to use. If not set and create is true, a name is generated using the fullname template |

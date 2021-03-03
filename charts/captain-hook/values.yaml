@@ -1,50 +1,45 @@
 # Default values for captain-hook.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
+
+# -- Number of replicas to run
 replicaCount: 1
 
 image:
   repository: garethjevans/captain-hook
   pullPolicy: IfNotPresent
-  # Overrides the image tag whose default is the chart appVersion.
+  # -- Overrides the image tag whose default is the chart appVersion.
   tag: ""
 
-# Service Configuration
+# -- Path to listen for webhook events on
 hookPath: /hook
+# -- Url to send all webhook events to
 forwardURL: http://jenkins:8080/github-webhook/
+# -- Should we relay to insecure tls endpoints
 insecureRelay: false
+# -- Maximum age in seconds a successful webhook should be live for
+maxAgeInSeconds: 3600
+# -- Number of seconds the next retry should not be attempted before
+attemptRetryAfterInSeconds: 60
+# -- Maximum number of times this webhook should be attempted
+maxAttempts: 10
 
 imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
 
 serviceAccount:
-  # Specifies whether a service account should be created
+  # -- Specifies whether a service account should be created
   create: true
-  # Annotations to add to the service account
-  annotations: {}
-  # The name of the service account to use.
-  # If not set and create is true, a name is generated using the fullname template
+  # -- The name of the service account to use. If not set and create is true, a name is generated using the fullname template
   name: ""
-
-podAnnotations: {}
-
-podSecurityContext: {}
-  # fsGroup: 2000
-
-securityContext: {}
-  # capabilities:
-  #   drop:
-  #   - ALL
-  # readOnlyRootFilesystem: true
-  # runAsNonRoot: true
-  # runAsUser: 1000
 
 service:
   type: ClusterIP
   port: 8080
 
 ingress:
+  # -- Create an ingress resource for this service
   enabled: true
   annotations: {}
     # kubernetes.io/ingress.class: nginx
@@ -56,7 +51,6 @@ ingress:
               name: captain-hook
               port:
                 number: 8080
-          pathType: ImplementationSpecific
 
   tls: []
   #  - secretName: chart-example-tls
@@ -81,9 +75,3 @@ autoscaling:
   maxReplicas: 100
   targetCPUUtilizationPercentage: 80
   # targetMemoryUtilizationPercentage: 80
-
-nodeSelector: {}
-
-tolerations: []
-
-affinity: {}
