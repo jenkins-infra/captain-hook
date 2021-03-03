@@ -69,7 +69,8 @@ func (s *kubernetesStore) Success(id string) error {
 
 	hook.Status.Phase = v1alpha12.HookPhaseSuccess
 	hook.Status.Message = ""
-	hook.Status.CompletedTimestamp = v1.Now()
+	now := v1.Now()
+	hook.Status.CompletedTimestamp = &now
 
 	_, err = s.client.CaptainhookV1alpha1().Hooks(s.namespace).Update(context.TODO(), hook, v1.UpdateOptions{})
 	if err != nil {
@@ -86,7 +87,10 @@ func (s *kubernetesStore) Error(id string, message string) error {
 
 	hook.Status.Phase = v1alpha12.HookPhaseFailed
 	hook.Status.Message = message
-	hook.Status.NoRetryBefore = v1.NewTime(time.Now().Add(time.Minute * 1))
+
+	// FIXME need to add the correct time here
+	retry := v1.NewTime(time.Now().Add(time.Minute * 1))
+	hook.Status.NoRetryBefore = &retry
 
 	_, err = s.client.CaptainhookV1alpha1().Hooks(s.namespace).Update(context.TODO(), hook, v1.UpdateOptions{})
 	if err != nil {

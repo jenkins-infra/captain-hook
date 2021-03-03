@@ -30,11 +30,11 @@ type HookSpec struct {
 
 // HookStatus is the status for a Hook resource.
 type HookStatus struct {
-	Phase              HookPhase   `json:"phase,omitempty" protobuf:"bytes,1,opt,name=phase,casttype=PodPhase"`
-	Attempts           int         `json:"attempts,omitempty" protobuf:"bytes,2,opt,name=attempts"`
-	Message            string      `json:"message,omitempty" protobuf:"bytes,3,opt,name=message"`
-	NoRetryBefore      metav1.Time `json:"noRetryBefore,omitempty" protobuf:"bytes,4,opt,name=noRetryBefore"`
-	CompletedTimestamp metav1.Time `json:"completedTimestamp,omitempty" protobuf:"bytes,5,opt,name=completedTimestamp"`
+	Phase              HookPhase    `json:"phase,omitempty" protobuf:"bytes,1,opt,name=phase,casttype=PodPhase"`
+	Attempts           int          `json:"attempts,omitempty" protobuf:"bytes,2,opt,name=attempts"`
+	Message            string       `json:"message,omitempty" protobuf:"bytes,3,opt,name=message"`
+	NoRetryBefore      *metav1.Time `json:"noRetryBefore,omitempty" protobuf:"bytes,4,opt,name=noRetryBefore"`
+	CompletedTimestamp *metav1.Time `json:"completedTimestamp,omitempty" protobuf:"bytes,5,opt,name=completedTimestamp"`
 }
 
 // HookStatusType is the status of a hook; usually success or failed at completion.
