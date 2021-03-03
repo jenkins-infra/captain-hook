@@ -20,29 +20,34 @@ const (
 )
 
 type informer struct {
-	handler *handler
+	handler         *handler
+	maxAgeInSeconds int
+	client          versioned.Interface
+	namespace       string
 }
 
 func (i *informer) Start() error {
-	logrus.Infof("getting in cluster config")
-	config, err := rest.InClusterConfig()
-	if err != nil {
-		panic(err)
-	}
+	if i.client == nil {
+		logrus.Infof("getting in cluster config")
+		config, err := rest.InClusterConfig()
+		if err != nil {
+			panic(err)
+		}
 
-	logrus.Infof("creating client set")
-	client, err := versioned.NewForConfig(config)
-	if err != nil {
-		return err
-	}
+		logrus.Infof("creating client set")
+		i.client, err = versioned.NewForConfig(config)
+		if err != nil {
+			return err
+		}
 
-	namespace, err := util.Namespace()
-	if err != nil {
-		return err
+		i.namespace, err = util.Namespace()
+		if err != nil {
+			return err
+		}
 	}
 
 	logrus.Infof("creating shared informer factory")
-	factory := externalversions.NewSharedInformerFactoryWithOptions(client, resyncPeriod, externalversions.WithNamespace(namespace))
+	factory := externalversions.NewSharedInformerFactoryWithOptions(i.client, resyncPeriod, externalversions.WithNamespace(i.namespace))
 	informer := factory.Captainhook().V1alpha1().Hooks().Informer()
 
 	stopper := make(chan struct{})
@@ -61,7 +66,7 @@ func (i *informer) Start() error {
 			h := newObj.(*v1alpha12.Hook)
 			logrus.Infof("Updated hook in namespace %s, name %s at %s", h.ObjectMeta.Namespace, h.ObjectMeta.Name, h.ObjectMeta.CreationTimestamp)
 			if h.Status.Phase == v1alpha12.HookPhaseSuccess {
-				err := DeleteIfOld(client, h)
+				err := i.DeleteIfOld(h)
 				if err != nil {
 					logrus.Errorf("delete if old failed: %s", err.Error())
 				}
@@ -73,18 +78,19 @@ func (i *informer) Start() error {
 	return nil
 }
 
-func DeleteIfOld(client versioned.Interface, hook *v1alpha12.Hook) error {
+func (i *informer) DeleteIfOld(hook *v1alpha12.Hook) error {
 	// if phase is successful
 	if hook.Status.Phase == v1alpha12.HookPhaseSuccess {
-		err := client.CaptainhookV1alpha1().Hooks(hook.ObjectMeta.Namespace).Delete(context.TODO(), hook.ObjectMeta.Name, v1.DeleteOptions{})
-		if err != nil {
-			return err
+		// and age is more than period set
+		if hook.Status.CompletedTimestamp.After(v1.Now().Add(time.Second * time.Duration(i.maxAgeInSeconds))) {
+			// then delete
+			err := i.client.CaptainhookV1alpha1().Hooks(hook.ObjectMeta.Namespace).Delete(context.TODO(), hook.ObjectMeta.Name, v1.DeleteOptions{})
+			if err != nil {
+				return err
+			}
 		}
 	}
 
-	// and age is more than period set
-
-	// then delete
 	return nil
 }
 

@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 
@@ -47,7 +48,8 @@ func NewHook() (*Options, error) {
 		ForwardURL: os.Getenv("FORWARD_URL"),
 		handler:    &h,
 		informer: &informer{
-			handler: &h,
+			handler:         &h,
+			maxAgeInSeconds: Atoi(os.Getenv("MAX_AGE_IN_SECONDS")),
 		},
 	}, nil
 }
@@ -156,4 +158,12 @@ func (o *Options) onGeneralHook(bodyBytes []byte, headers http.Header) error {
 	logrus.Infof("webhook delivery ok for %s", githubDeliveryEvent)
 
 	return nil
+}
+
+func Atoi(in string) int {
+	out, err := strconv.Atoi(in)
+	if err != nil {
+		panic(err)
+	}
+	return out
 }

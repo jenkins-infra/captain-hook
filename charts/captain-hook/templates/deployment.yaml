@@ -55,6 +55,12 @@ spec:
               value: {{ .Values.forwardURL }}
             - name: INSECURE_RELAY
               value: {{ .Values.insecureRelay | quote }}
+            - name: MAX_AGE_IN_SECONDS
+              value: {{ .Values.maxAgeInSeconds | quote }}
+            - name: ATTEMPT_RETRY_AFTER_IN_SECONDS
+              value: {{ .Values.attemptRetryAfterInSeconds | quote }}
+            - name: MAX_ATTEMPTS
+              value: {{ .Values.maxAttempts | quote }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
