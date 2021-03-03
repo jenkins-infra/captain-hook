@@ -8,7 +8,6 @@ import (
 	"os"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/garethjevans/captain-hook/pkg/store"
 
@@ -19,10 +18,6 @@ import (
 
 const (
 	HealthPath = "/health"
-)
-
-var (
-	defaultMaxRetryDuration = 10 * time.Second
 )
 
 // Options struct containing all options.
@@ -38,9 +33,7 @@ type Options struct {
 func NewHook() (*Options, error) {
 	logrus.Infof("creating new webhook listener")
 	h := handler{
-		InsecureRelay:    os.Getenv("INSECURE_RELAY") == "true",
-		maxRetryDuration: &defaultMaxRetryDuration,
-		store:            store.NewKubernetesStore(),
+		store: store.NewKubernetesStore(),
 	}
 	return &Options{
 		Path:       os.Getenv("HOOK_PATH"),
@@ -135,14 +128,6 @@ func (o *Options) handleWebHookRequests(w http.ResponseWriter, r *http.Request) 
 }
 
 func (o *Options) onGeneralHook(bodyBytes []byte, headers http.Header) error {
-	// Set a default max retry duration of 30 seconds if it's not set.
-	if o.handler.maxRetryDuration == nil {
-		o.handler.maxRetryDuration = &defaultMaxRetryDuration
-	}
-
-	githubDeliveryEvent := headers.Get("X-Github-Delivery")
-	logrus.Debugf("onGeneralHook - %s", githubDeliveryEvent)
-
 	hook := Hook{
 		ForwardURL: o.ForwardURL,
 		Body:       bodyBytes,
@@ -151,11 +136,11 @@ func (o *Options) onGeneralHook(bodyBytes []byte, headers http.Header) error {
 
 	err := o.handler.Handle(&hook)
 	if err != nil {
-		logrus.Errorf("failed to deliver webhook after %s, %s", o.handler.maxRetryDuration, err)
+		logrus.Errorf("failed to deliver webhook after %s", err)
 		return err
 	}
 
-	logrus.Infof("webhook delivery ok for %s", githubDeliveryEvent)
+	logrus.Infof("webhook delivery ok for %s", hook.Name)
 
 	return nil
 }

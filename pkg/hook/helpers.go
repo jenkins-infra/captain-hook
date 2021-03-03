@@ -17,11 +17,5 @@ func writeResult(w io.Writer, message string) {
 
 func responseHTTPError(w http.ResponseWriter, statusCode int, message string, args ...interface{}) {
 	response := fmt.Sprintf(message, args...)
-
-	logrus.WithFields(logrus.Fields{
-		"response":    response,
-		"status-code": statusCode,
-	}).Info(response)
-
 	http.Error(w, response, statusCode)
 }
