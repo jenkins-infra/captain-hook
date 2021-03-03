@@ -23,10 +23,7 @@ $ helm install captain-hook captain-hook/captain-hook
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | attemptRetryAfterInSeconds | int | `60` | Number of seconds the next retry should not be attempted before |
-| autoscaling.enabled | bool | `false` |  |
-| autoscaling.maxReplicas | int | `100` |  |
-| autoscaling.minReplicas | int | `1` |  |
-| autoscaling.targetCPUUtilizationPercentage | int | `80` |  |
+| autoscaling | object | `{"enabled":false,"maxReplicas":100,"minReplicas":1,"targetCPUUtilizationPercentage":80}` | Autoscaling configuration, disabled by default |
 | forwardURL | string | `"http://jenkins:8080/github-webhook/"` | Url to send all webhook events to |
 | fullnameOverride | string | `""` |  |
 | hookPath | string | `"/hook"` | Path to listen for webhook events on |
