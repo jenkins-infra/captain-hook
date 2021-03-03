@@ -75,7 +75,9 @@ func (i *informer) Start() error {
 				}
 			} else if h.Status.Phase == v1alpha12.HookPhaseFailed {
 				now := v1.Now()
-				if h.Status.NoRetryBefore.Before(&now) {
+				retry := h.Status.NoRetryBefore
+				logrus.Infof("checking if retry date %s is before %s", retry, now)
+				if retry.Before(&now) {
 					err := i.Retry(h)
 					if err != nil {
 						logrus.Errorf("retry failed: %s", err.Error())
@@ -110,22 +112,26 @@ func (i *informer) DeleteIfOld(hook *v1alpha12.Hook) error {
 func (i *informer) Retry(hook *v1alpha12.Hook) error {
 	// if phase is failed or none
 	if hook.Status.Phase == v1alpha12.HookPhaseFailed {
+		logrus.Infof("retrying hook %s", hook.ObjectMeta.Name)
 		err := i.store.MarkForRetry(hook.ObjectMeta.Name)
 		if err != nil {
 			return err
 		}
 
 		// attempt to send
+		logrus.Infof("resending hook %s", hook.ObjectMeta.Name)
 		err = i.sender.send(hook.Spec.ForwardURL, []byte(hook.Spec.Body), hook.Spec.Headers)
 
 		if err != nil {
 			// mark as failed if errored
+			logrus.Infof("recording hook %s as failed", hook.ObjectMeta.Name)
 			err = i.store.Error(hook.ObjectMeta.Name, err.Error())
 			if err != nil {
 				return err
 			}
 		} else {
 			// mark as success if passed
+			logrus.Infof("recording hook %s as success", hook.ObjectMeta.Name)
 			err = i.store.Success(hook.ObjectMeta.Name)
 			if err != nil {
 				return err
