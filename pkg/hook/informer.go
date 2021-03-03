@@ -68,13 +68,12 @@ func (i *informer) Start() error {
 			h := newObj.(*v1alpha12.Hook)
 			logrus.Infof("Updated hook in namespace %s, name %s at %s", h.ObjectMeta.Namespace, h.ObjectMeta.Name, h.ObjectMeta.CreationTimestamp)
 			if h.Status.Phase == v1alpha12.HookPhaseSuccess {
+				logrus.Infof("Hook %s is success, checking age... %s", h.ObjectMeta.Name, h.Status.CompletedTimestamp)
 				err := i.DeleteIfOld(h)
 				if err != nil {
 					logrus.Errorf("delete if old failed: %s", err.Error())
 				}
-			}
-
-			if h.Status.Phase == v1alpha12.HookPhaseFailed {
+			} else if h.Status.Phase == v1alpha12.HookPhaseFailed {
 				now := v1.Now()
 				if h.Status.NoRetryBefore.Before(&now) {
 					err := i.Retry(h)
@@ -94,7 +93,9 @@ func (i *informer) DeleteIfOld(hook *v1alpha12.Hook) error {
 	// if phase is successful
 	if hook.Status.Phase == v1alpha12.HookPhaseSuccess {
 		// and age is more than period set
-		if hook.Status.CompletedTimestamp.After(v1.Now().Add(time.Second * time.Duration(i.maxAgeInSeconds))) {
+		ts := v1.Now().Add(time.Second * time.Duration(-1*i.maxAgeInSeconds))
+		logrus.Infof("checking if hook %s is older than %s", hook.ObjectMeta.Name, ts)
+		if ts.After(hook.Status.CompletedTimestamp.Time) {
 			// then delete
 			err := i.store.Delete(hook.ObjectMeta.Name)
 			if err != nil {
