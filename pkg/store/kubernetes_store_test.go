@@ -153,3 +153,76 @@ func TestKubernetesStore_Error(t *testing.T) {
 	assert.Equal(t, "v1alpha1", f.Actions()[1].GetResource().Version)
 	assert.Equal(t, "captainhook.io", f.Actions()[1].GetResource().Group)
 }
+
+func TestKubernetesStore_MarkForRetry(t *testing.T) {
+	f := fake.Clientset{}
+
+	store := kubernetesStore{
+		namespace: "dummy",
+		client:    &f,
+	}
+
+	f.AddReactor("get", "hooks",
+		func(action clienttesting.Action) (handled bool, ret runtime.Object, err error) {
+			return true, &v1alpha12.Hook{
+				ObjectMeta: v1.ObjectMeta{
+					Name: "generatedHookName",
+				},
+				Spec: v1alpha12.HookSpec{
+					ForwardURL: "http://test.com",
+					Body:       "body",
+					Headers:    nil,
+				},
+				Status: v1alpha12.HookStatus{
+					Phase:    v1alpha12.HookPhaseFailed,
+					Attempts: 0,
+				},
+			}, nil
+		})
+
+	f.AddReactor("update", "hooks",
+		func(action clienttesting.Action) (handled bool, ret runtime.Object, err error) {
+			hook := action.(clienttesting.UpdateAction).GetObject().(*v1alpha12.Hook)
+			assert.Equal(t, hook.Name, "generatedHookName")
+
+			assert.Equal(t, hook.Status.Phase, v1alpha12.HookPhasePending)
+			assert.Equal(t, hook.Status.Message, "")
+			assert.Equal(t, hook.Status.Attempts, 1)
+
+			return true, hook, nil
+		})
+
+	err := store.MarkForRetry("hookName")
+	assert.NoError(t, err)
+
+	assert.Equal(t, 2, len(f.Actions()))
+
+	assert.Equal(t, "get", f.Actions()[0].GetVerb())
+	assert.Equal(t, "hooks", f.Actions()[0].GetResource().Resource)
+	assert.Equal(t, "v1alpha1", f.Actions()[0].GetResource().Version)
+	assert.Equal(t, "captainhook.io", f.Actions()[0].GetResource().Group)
+
+	assert.Equal(t, "update", f.Actions()[1].GetVerb())
+	assert.Equal(t, "hooks", f.Actions()[1].GetResource().Resource)
+	assert.Equal(t, "v1alpha1", f.Actions()[1].GetResource().Version)
+	assert.Equal(t, "captainhook.io", f.Actions()[1].GetResource().Group)
+}
+
+func TestKubernetesStore_Delete(t *testing.T) {
+	f := fake.Clientset{}
+
+	store := kubernetesStore{
+		namespace: "dummy",
+		client:    &f,
+	}
+
+	err := store.Delete("hookName")
+	assert.NoError(t, err)
+
+	assert.Equal(t, 1, len(f.Actions()))
+
+	assert.Equal(t, "delete", f.Actions()[0].GetVerb())
+	assert.Equal(t, "hooks", f.Actions()[0].GetResource().Resource)
+	assert.Equal(t, "v1alpha1", f.Actions()[0].GetResource().Version)
+	assert.Equal(t, "captainhook.io", f.Actions()[0].GetResource().Group)
+}
