@@ -2,6 +2,7 @@ package store
 
 import (
 	"context"
+	"time"
 
 	"github.com/garethjevans/captain-hook/pkg/client/clientset/versioned"
 
@@ -68,6 +69,7 @@ func (s *kubernetesStore) Success(id string) error {
 
 	hook.Status.Phase = v1alpha12.HookPhaseSuccess
 	hook.Status.Message = ""
+	hook.Status.CompletedTimestamp = v1.Now()
 
 	_, err = s.client.CaptainhookV1alpha1().Hooks(s.namespace).Update(context.TODO(), hook, v1.UpdateOptions{})
 	if err != nil {
@@ -84,6 +86,7 @@ func (s *kubernetesStore) Error(id string, message string) error {
 
 	hook.Status.Phase = v1alpha12.HookPhaseFailed
 	hook.Status.Message = message
+	hook.Status.NoRetryBefore = v1.NewTime(time.Now().Add(time.Minute * 1))
 
 	_, err = s.client.CaptainhookV1alpha1().Hooks(s.namespace).Update(context.TODO(), hook, v1.UpdateOptions{})
 	if err != nil {
