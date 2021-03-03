@@ -44,6 +44,10 @@ spec:
                   type: integer
                 message:
                   type: string
+                noRetryBefore:
+                  type: date
+                completedTimestamp:
+                  type: date
       additionalPrinterColumns:
         - name: ForwardURL
           type: string
