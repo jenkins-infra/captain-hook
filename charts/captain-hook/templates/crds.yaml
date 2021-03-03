@@ -56,7 +56,7 @@ spec:
           type: string
           jsonPath: .status.phase
         - name: Attempts
-          type: date
+          type: integer
           description: The number of attempts the webhooks has had.
           jsonPath: .status.attempts
           priority: 1
@@ -65,6 +65,7 @@ spec:
           description: Do not attempt to retry this webhook before.
           jsonPath: .status.noRetryBefore
           priority: 1
+          format: date-time
         - name: Completed
           type: date
           description: When this hook was successfully sent.
@@ -73,6 +74,10 @@ spec:
         - name: Age
           type: date
           jsonPath: .metadata.creationTimestamp
+        - name: Error
+          type: string
+          jsonPath: .status.message
+          priority: 1
   scope: Namespaced
   names:
     kind: Hook
