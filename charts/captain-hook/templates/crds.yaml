@@ -49,9 +49,6 @@ spec:
                 completedTimestamp:
                   type: string
       additionalPrinterColumns:
-        - name: Forward URL
-          type: string
-          jsonPath: .spec.forwardURL
         - name: Status
           type: string
           jsonPath: .status.phase

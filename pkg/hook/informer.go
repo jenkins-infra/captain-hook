@@ -124,7 +124,7 @@ func (i *informer) Retry(hook *v1alpha12.Hook) error {
 
 		if err != nil {
 			// mark as failed if errored
-			logrus.Infof("recording hook %s as failed", hook.ObjectMeta.Name)
+			logrus.Infof("recording hook %s as failed: %s", hook.ObjectMeta.Name, err.Error())
 			err = i.store.Error(hook.ObjectMeta.Name, err.Error())
 			if err != nil {
 				return err
