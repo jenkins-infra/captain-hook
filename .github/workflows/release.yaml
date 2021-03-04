@@ -86,6 +86,11 @@ jobs:
             org.opencontainers.image.url=${{ github.event.repository.html_url }}
             org.opencontainers.image.created=${{ steps.prep.outputs.created }}
             org.opencontainers.image.revision=${{ github.sha }}
+            org.label-schema.vcs-url=${{ github.event.repository.html_url }}
+            org.label-schema.url=${{ github.event.repository.html_url }}
+            org.label-schema.build-date=${{ steps.prep.outputs.created }}
+            org.label-schema.vcs-ref=${{ github.sha }}
+            inspect.tree.state=clean
 
       - name: Configure Git
         if: ${{ steps.prep.outputs.release_chart == 'true' }}
