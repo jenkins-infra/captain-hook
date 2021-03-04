@@ -10,15 +10,17 @@ ORG := garethjevans
 # set dev version unless VERSION is explicitly set via environment
 VERSION ?= $(shell echo "$$(git describe --abbrev=0 --tags 2>/dev/null)-dev+$(REV)" | sed 's/^v//')
 
-GO_VERSION := $(shell $(GO) version | sed -e 's/^[^0-9.]*\([0-9.]*\).*/\1/')
-PACKAGE_DIRS := $(shell $(GO) list ./... | grep -v /vendor/ | grep -v e2e)
+GO_VERSION       := $(shell $(GO) version | sed -e 's/^[^0-9.]*\([0-9.]*\).*/\1/')
+PACKAGE_DIRS     := $(shell $(GO) list ./... | grep -v /vendor/ | grep -v e2e)
 PEGOMOCK_PACKAGE := github.com/petergtz/pegomock
-GO_DEPENDENCIES := $(shell find . -type f -name '*.go')
+GO_DEPENDENCIES  := $(shell find . -type f -name '*.go')
 
-REV        := $(shell git rev-parse --short HEAD 2> /dev/null || echo 'unknown')
-SHA1       := $(shell git rev-parse HEAD 2> /dev/null || echo 'unknown')
-BRANCH     := $(shell git rev-parse --abbrev-ref HEAD 2> /dev/null  || echo 'unknown')
-BUILD_DATE := $(shell date +%Y%m%d-%H:%M:%S)
+REV              := $(shell git rev-parse --short HEAD 2> /dev/null || echo 'unknown')
+SHA1             := $(shell git rev-parse HEAD 2> /dev/null || echo 'unknown')
+BRANCH           := $(shell git rev-parse --abbrev-ref HEAD 2> /dev/null || echo 'unknown')
+BUILD_DATE       := $(shell date +%Y%m%d-%H:%M:%S)
+INSPECT_LABELS   := $(shell inspect labels 2> /dev/null || echo '--label "inspect.not.installed=true"')
+
 BUILDFLAGS := -trimpath -ldflags \
   " -X $(ROOT_PACKAGE)/pkg/version.Version=$(VERSION)\
 		-X $(ROOT_PACKAGE)/pkg/version.Revision=$(REV)\
@@ -46,7 +48,7 @@ linux: $(GO_DEPENDENCIES)
 dist: $(GO_DEPENDENCIES)
 	CGO_ENABLED=$(CGO_ENABLED) GOOS=linux GOARCH=amd64 $(GO) build $(BUILDFLAGS) -o dist/captain-hook-linux_linux_amd64/$(NAME) cmd/$(NAME)/$(NAME).go
 	chmod +x dist/captain-hook-linux_linux_amd64/$(NAME)
-	docker build --platform linux/amd64 -t garethjevans/captain-hook:dev .
+	docker build --platform linux/amd64 -t garethjevans/captain-hook:dev $(INSPECT_LABELS) .
 	docker push garethjevans/captain-hook:dev --disable-content-trust=true
 
 diff:
