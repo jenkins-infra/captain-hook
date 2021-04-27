@@ -48,8 +48,8 @@ linux: $(GO_DEPENDENCIES)
 dist: $(GO_DEPENDENCIES)
 	CGO_ENABLED=$(CGO_ENABLED) GOOS=linux GOARCH=amd64 $(GO) build $(BUILDFLAGS) -o dist/captain-hook-linux_linux_amd64/$(NAME) cmd/$(NAME)/$(NAME).go
 	chmod +x dist/captain-hook-linux_linux_amd64/$(NAME)
-	docker build --platform linux/amd64 -t jenkins-infra/captain-hook:dev $(INSPECT_LABELS) .
-	docker push jenkins-infra/captain-hook:dev --disable-content-trust=true
+	docker build --platform linux/amd64 -t jenkinsciinfra/captain-hook:dev $(INSPECT_LABELS) .
+	docker push jenkinsciinfra/captain-hook:dev --disable-content-trust=true
 
 diff:
 	helm diff upgrade --install captain-hook charts/captain-hook --set image.pullPolicy=Always --set replicaCount=1 
