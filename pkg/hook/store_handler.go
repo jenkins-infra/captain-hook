@@ -1,7 +1,7 @@
 package hook
 
 import (
-	"github.com/garethjevans/captain-hook/pkg/store"
+	"github.com/jenkins-infra/captain-hook/pkg/store"
 )
 
 type handler struct {

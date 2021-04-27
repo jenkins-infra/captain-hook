@@ -9,7 +9,7 @@ package versioned
 import (
 	"fmt"
 
-	captainhookv1alpha1 "github.com/garethjevans/captain-hook/pkg/client/clientset/versioned/typed/captainhookio/v1alpha1"
+	captainhookv1alpha1 "github.com/jenkins-infra/captain-hook/pkg/client/clientset/versioned/typed/captainhookio/v1alpha1"
 	discovery "k8s.io/client-go/discovery"
 	rest "k8s.io/client-go/rest"
 	flowcontrol "k8s.io/client-go/util/flowcontrol"

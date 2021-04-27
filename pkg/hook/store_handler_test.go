@@ -3,7 +3,7 @@ package hook
 import (
 	"testing"
 
-	"github.com/garethjevans/captain-hook/pkg/store"
+	"github.com/jenkins-infra/captain-hook/pkg/store"
 	"github.com/stretchr/testify/assert"
 )
 

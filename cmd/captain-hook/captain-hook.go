@@ -8,8 +8,8 @@ import (
 
 	"github.com/sirupsen/logrus"
 
-	"github.com/garethjevans/captain-hook/pkg/cmd"
-	"github.com/garethjevans/captain-hook/pkg/version"
+	"github.com/jenkins-infra/captain-hook/pkg/cmd"
+	"github.com/jenkins-infra/captain-hook/pkg/version"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"

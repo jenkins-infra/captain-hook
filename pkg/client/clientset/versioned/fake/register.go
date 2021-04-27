@@ -7,7 +7,7 @@
 package fake
 
 import (
-	captainhookv1alpha1 "github.com/garethjevans/captain-hook/pkg/api/captainhookio/v1alpha1"
+	captainhookv1alpha1 "github.com/jenkins-infra/captain-hook/pkg/api/captainhookio/v1alpha1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"

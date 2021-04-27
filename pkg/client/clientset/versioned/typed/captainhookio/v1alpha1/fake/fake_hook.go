@@ -9,7 +9,7 @@ package fake
 import (
 	"context"
 
-	v1alpha1 "github.com/garethjevans/captain-hook/pkg/api/captainhookio/v1alpha1"
+	v1alpha1 "github.com/jenkins-infra/captain-hook/pkg/api/captainhookio/v1alpha1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	labels "k8s.io/apimachinery/pkg/labels"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"

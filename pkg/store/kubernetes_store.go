@@ -4,10 +4,10 @@ import (
 	"context"
 	"time"
 
-	"github.com/garethjevans/captain-hook/pkg/client/clientset/versioned"
+	"github.com/jenkins-infra/captain-hook/pkg/client/clientset/versioned"
 
-	v1alpha12 "github.com/garethjevans/captain-hook/pkg/api/captainhookio/v1alpha1"
-	"github.com/garethjevans/captain-hook/pkg/util"
+	v1alpha12 "github.com/jenkins-infra/captain-hook/pkg/api/captainhookio/v1alpha1"
+	"github.com/jenkins-infra/captain-hook/pkg/util"
 	"github.com/sirupsen/logrus"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/rest"

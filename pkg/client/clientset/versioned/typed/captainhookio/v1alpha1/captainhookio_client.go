@@ -7,8 +7,8 @@
 package v1alpha1
 
 import (
-	v1alpha1 "github.com/garethjevans/captain-hook/pkg/api/captainhookio/v1alpha1"
-	"github.com/garethjevans/captain-hook/pkg/client/clientset/versioned/scheme"
+	v1alpha1 "github.com/jenkins-infra/captain-hook/pkg/api/captainhookio/v1alpha1"
+	"github.com/jenkins-infra/captain-hook/pkg/client/clientset/versioned/scheme"
 	rest "k8s.io/client-go/rest"
 )
 

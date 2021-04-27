@@ -9,10 +9,10 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/garethjevans/captain-hook/pkg/store"
+	"github.com/jenkins-infra/captain-hook/pkg/store"
 
-	"github.com/garethjevans/captain-hook/pkg/version"
 	"github.com/gorilla/mux"
+	"github.com/jenkins-infra/captain-hook/pkg/version"
 	"github.com/sirupsen/logrus"
 )
 

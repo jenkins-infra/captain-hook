@@ -7,8 +7,8 @@ import (
 	"os/signal"
 	"time"
 
-	"github.com/garethjevans/captain-hook/pkg/hook"
 	"github.com/gorilla/mux"
+	"github.com/jenkins-infra/captain-hook/pkg/hook"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )

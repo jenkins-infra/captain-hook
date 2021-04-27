@@ -1,6 +1,6 @@
 package hook
 
-import v1alpha12 "github.com/garethjevans/captain-hook/pkg/api/captainhookio/v1alpha1"
+import v1alpha12 "github.com/jenkins-infra/captain-hook/pkg/api/captainhookio/v1alpha1"
 
 // Hook struct to hold everything related to a hook.
 type Hook struct {
