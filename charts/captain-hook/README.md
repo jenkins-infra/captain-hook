@@ -28,7 +28,7 @@ $ helm install captain-hook captain-hook/captain-hook
 | fullnameOverride | string | `""` |  |
 | hookPath | string | `"/hook"` | Path to listen for webhook events on |
 | image.pullPolicy | string | `"IfNotPresent"` |  |
-| image.repository | string | `"jenkins-infra/captain-hook"` |  |
+| image.repository | string | `"jenkinsciinfra/captain-hook"` |  |
 | image.tag | string | `""` | Overrides the image tag whose default is the chart appVersion. |
 | imagePullSecrets | list | `[]` |  |
 | ingress.annotations | object | `{}` |  |
