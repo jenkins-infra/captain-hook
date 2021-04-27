@@ -7,6 +7,6 @@ type: application
 version: 0.0.1-SNAPSHOT
 appVersion: dev
 maintainers:
-  - name: jenkins-infra
+  - name: garethjevans
     email: gareth@bryncynfelin.co.uk
 icon: https://wiki.jenkins-ci.org/download/attachments/2916393/logo.png
