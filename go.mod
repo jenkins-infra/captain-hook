@@ -1,4 +1,4 @@
-module github.com/garethjevans/captain-hook
+module github.com/jenkins-infra/captain-hook
 
 go 1.15
 

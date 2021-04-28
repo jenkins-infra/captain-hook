@@ -3,9 +3,9 @@ NAME := captain-hook
 BINARY_NAME := captain-hook
 GO := GO111MODULE=on GO15VENDOREXPERIMENT=1 go
 GO_NOMOD := GO111MODULE=off go
-PACKAGE_NAME := github.com/garethjevans/captain-hook
-ROOT_PACKAGE := github.com/garethjevans/captain-hook
-ORG := garethjevans
+PACKAGE_NAME := github.com/jenkins-infra/captain-hook
+ROOT_PACKAGE := github.com/jenkins-infra/captain-hook
+ORG := jenkins-infra
 
 # set dev version unless VERSION is explicitly set via environment
 VERSION ?= $(shell echo "$$(git describe --abbrev=0 --tags 2>/dev/null)-dev+$(REV)" | sed 's/^v//')
@@ -48,8 +48,8 @@ linux: $(GO_DEPENDENCIES)
 dist: $(GO_DEPENDENCIES)
 	CGO_ENABLED=$(CGO_ENABLED) GOOS=linux GOARCH=amd64 $(GO) build $(BUILDFLAGS) -o dist/captain-hook-linux_linux_amd64/$(NAME) cmd/$(NAME)/$(NAME).go
 	chmod +x dist/captain-hook-linux_linux_amd64/$(NAME)
-	docker build --platform linux/amd64 -t garethjevans/captain-hook:dev $(INSPECT_LABELS) .
-	docker push garethjevans/captain-hook:dev --disable-content-trust=true
+	docker build --platform linux/amd64 -t jenkinsciinfra/captain-hook:dev $(INSPECT_LABELS) .
+	docker push jenkinsciinfra/captain-hook:dev --disable-content-trust=true
 
 diff:
 	helm diff upgrade --install captain-hook charts/captain-hook --set image.pullPolicy=Always --set replicaCount=1 

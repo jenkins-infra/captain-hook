@@ -1,6 +1,6 @@
 # captain-hook
 
-A Helm chart for github.com/garethjevans/captain-hook
+A Helm chart for github.com/jenkins-infra/captain-hook
 
 ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
 
@@ -14,7 +14,7 @@ to the Jenkins service.
 To install the chart `captain-hook`:
 
 ```console
-$ helm repo add captain-hook https://garethjevans.github.io/captain-hook
+$ helm repo add captain-hook https://jenkins-infra.github.io/captain-hook
 $ helm install captain-hook captain-hook/captain-hook
 ```
 
@@ -28,7 +28,7 @@ $ helm install captain-hook captain-hook/captain-hook
 | fullnameOverride | string | `""` |  |
 | hookPath | string | `"/hook"` | Path to listen for webhook events on |
 | image.pullPolicy | string | `"IfNotPresent"` |  |
-| image.repository | string | `"garethjevans/captain-hook"` |  |
+| image.repository | string | `"jenkinsciinfra/captain-hook"` |  |
 | image.tag | string | `""` | Overrides the image tag whose default is the chart appVersion. |
 | imagePullSecrets | list | `[]` |  |
 | ingress.annotations | object | `{}` |  |

@@ -11,5 +11,5 @@ const (
 	GroupAndVersion = GroupName + "/" + Version
 
 	// Package is the Go package in which the apis live
-	Package = "github.com/garethjevans/captain-hook/pkg/api"
+	Package = "github.com/jenkins-infra/captain-hook/pkg/api"
 )

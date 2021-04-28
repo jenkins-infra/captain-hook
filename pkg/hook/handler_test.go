@@ -7,7 +7,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/garethjevans/captain-hook/pkg/store"
+	"github.com/jenkins-infra/captain-hook/pkg/store"
 
 	"github.com/sirupsen/logrus"
 

@@ -9,7 +9,7 @@ a POC webhook relay that can be used to store and forward webhooks from GitHub t
 Should be installed in the same namespace as Jenkins.
 
 ```
-helm repo add captain-hook https://garethjevans.github.io/captain-hook
+helm repo add captain-hook https://jenkins-infra.github.io/captain-hook
 helm install captain-hook captain-hook/captain-hook
 ```
 

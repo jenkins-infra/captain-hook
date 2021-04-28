@@ -1,8 +1,8 @@
 ---
 apiVersion: v2
 name: captain-hook
-description: A Helm chart for github.com/garethjevans/captain-hook
-home: https://github.com/garethjevans/captain-hook
+description: A Helm chart for github.com/jenkins-infra/captain-hook
+home: https://github.com/jenkins-infra/captain-hook
 type: application
 version: 0.0.1-SNAPSHOT
 appVersion: dev

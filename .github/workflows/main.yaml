@@ -28,7 +28,7 @@ jobs:
       - name: Prepare
         id: prep
         run: |
-          DOCKER_IMAGE=garethjevans/captain-hook
+          DOCKER_IMAGE=jenkinsciinfra/captain-hook
           VERSION=latest
           GORELEASER_ARGS="build --rm-dist --snapshot"
           RELEASE_CHART=false

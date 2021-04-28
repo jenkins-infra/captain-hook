@@ -4,8 +4,8 @@ import (
 	"net/http"
 	"testing"
 
-	v1alpha12 "github.com/garethjevans/captain-hook/pkg/api/captainhookio/v1alpha1"
-	"github.com/garethjevans/captain-hook/pkg/client/clientset/versioned/fake"
+	v1alpha12 "github.com/jenkins-infra/captain-hook/pkg/api/captainhookio/v1alpha1"
+	"github.com/jenkins-infra/captain-hook/pkg/client/clientset/versioned/fake"
 	"github.com/stretchr/testify/assert"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"

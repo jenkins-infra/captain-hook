@@ -11,9 +11,9 @@ import (
 	sync "sync"
 	time "time"
 
-	versioned "github.com/garethjevans/captain-hook/pkg/client/clientset/versioned"
-	captainhookio "github.com/garethjevans/captain-hook/pkg/client/informers/externalversions/captainhookio"
-	internalinterfaces "github.com/garethjevans/captain-hook/pkg/client/informers/externalversions/internalinterfaces"
+	versioned "github.com/jenkins-infra/captain-hook/pkg/client/clientset/versioned"
+	captainhookio "github.com/jenkins-infra/captain-hook/pkg/client/informers/externalversions/captainhookio"
+	internalinterfaces "github.com/jenkins-infra/captain-hook/pkg/client/informers/externalversions/internalinterfaces"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"

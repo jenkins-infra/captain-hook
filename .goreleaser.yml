@@ -11,7 +11,7 @@ builds:
     main: ./cmd/captain-hook/captain-hook.go
     binary: captain-hook
     ldflags:
-      - -X github.com/garethjevans/captain-hook/pkg/version.Version={{.Version}} -X github.com/garethjevans/captain-hook/pkg/version.Revision={{.ShortCommit}} -X github.com/garethjevans/captain-hook/pkg/version.BuildDate={{.CommitDate}} -X github.com/garethjevans/captain-hook/pkg/version.BuiltBy=goreleaser
+      - -X github.com/jenkins-infra/captain-hook/pkg/version.Version={{.Version}} -X github.com/jenkins-infra/captain-hook/pkg/version.Revision={{.ShortCommit}} -X github.com/jenkins-infra/captain-hook/pkg/version.BuildDate={{.CommitDate}} -X github.com/jenkins-infra/captain-hook/pkg/version.BuiltBy=goreleaser
     goos:
       - linux
     goarch:
@@ -24,7 +24,7 @@ builds:
     main: ./cmd/captain-hook/captain-hook.go
     binary: captain-hook
     ldflags:
-      - -X github.com/garethjevans/captain-hook/pkg/version.Version={{.Version}} -X github.com/garethjevans/captain-hook/pkg/version.Revision={{.ShortCommit}} -X github.com/garethjevans/captain-hook/pkg/version.BuildDate={{.CommitDate}} -X github.com/garethjevans/captain-hook/pkg/version.BuiltBy=goreleaser
+      - -X github.com/jenkins-infra/captain-hook/pkg/version.Version={{.Version}} -X github.com/jenkins-infra/captain-hook/pkg/version.Revision={{.ShortCommit}} -X github.com/jenkins-infra/captain-hook/pkg/version.BuildDate={{.CommitDate}} -X github.com/jenkins-infra/captain-hook/pkg/version.BuiltBy=goreleaser
     goos:
       - darwin
     goarch:

@@ -7,7 +7,7 @@
 package v1alpha1
 
 import (
-	v1alpha1 "github.com/garethjevans/captain-hook/pkg/api/captainhookio/v1alpha1"
+	v1alpha1 "github.com/jenkins-infra/captain-hook/pkg/api/captainhookio/v1alpha1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/client-go/tools/cache"
