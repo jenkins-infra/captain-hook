@@ -35,6 +35,7 @@ $ helm install captain-hook captain-hook/captain-hook
 | ingress.enabled | bool | `true` | Create an ingress resource for this service |
 | ingress.hosts[0].paths[0].backend.service.name | string | `"captain-hook"` |  |
 | ingress.hosts[0].paths[0].backend.service.port.number | int | `8080` |  |
+| ingress.ingressClassName | string | `""` |  |
 | ingress.tls | list | `[]` |  |
 | insecureRelay | bool | `false` | Should we relay to insecure tls endpoints |
 | maxAgeInSeconds | int | `3600` | Maximum age in seconds a successful webhook should be live for |
