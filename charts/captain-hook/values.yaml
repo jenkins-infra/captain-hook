@@ -42,8 +42,8 @@ ingress:
   # -- Create an ingress resource for this service
   enabled: true
   annotations: {}
-    # kubernetes.io/ingress.class: nginx
     # kubernetes.io/tls-acme: "true"
+  ingressClassName: ""
   hosts:
     - paths:
         - backend:
