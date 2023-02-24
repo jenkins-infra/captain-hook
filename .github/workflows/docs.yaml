@@ -1,10 +1,7 @@
----
 name: Update Docs
-
 on:
   schedule:
     - cron: "*/15 * * * *"
-
 jobs:
   build:
     name: Update Docs
@@ -12,20 +9,17 @@ jobs:
     steps:
       - name: Check out source code
         uses: actions/checkout@v2
-
       - name: Update
-        uses: docker://jnorwood/helm-docs:latest
+        uses: docker://index.docker.io/jnorwood/helm-docs@sha256:66c8f4164dec860fa5c1528239c4aa826a12485305b7b224594b1a73f7e6879a # ratchet:docker://jnorwood/helm-docs:latest
         with:
           entrypoint: helm-docs
-
       - name: Debug
         run: |
           git diff
           git status
-
       - name: Create Pull Request
         id: cpr
-        uses: peter-evans/create-pull-request@v3
+        uses: peter-evans/create-pull-request@18f7dc018cc2cd597073088f7c7591b9d1c02672 # v3
         with:
           commit-message: 'chore(docs): regenerated helm docs'
           signoff: false
